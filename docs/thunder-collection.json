@@ -1,0 +1,753 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Ganado Backend API",
+  "dateExported": "2024-01-01T00:00:00.000Z",
+  "version": "1.1",
+  "folders": [
+    {
+      "name": "Roles",
+      "items": [
+        {
+          "name": "GET - Listar Roles",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/roles",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Rol por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/roles/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Rol",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/roles",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Nuevo Rol"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Rol",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/roles/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Rol Actualizado"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Rol",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/roles/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "items": [
+        {
+          "name": "GET - Listar Usuarios",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/usuarios",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Usuario por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/usuarios/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Usuario",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/usuarios",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Nuevo Usuario",
+                "Correo": "nuevo@example.com",
+                "Contraseña": "password123",
+                "RolID": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Usuario",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/usuarios/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Usuario Actualizado",
+                "Correo": "actualizado@example.com",
+                "Contraseña": "newpassword123",
+                "RolID": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Usuario",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/usuarios/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "items": [
+        {
+          "name": "GET - Listar Categorías",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/categorias",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Categoría por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/categorias/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Categoría",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/categorias",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Tipo": "Nueva Categoría"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Categoría",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/categorias/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Tipo": "Categoría Actualizada"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Categoría",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/categorias/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Animales",
+      "items": [
+        {
+          "name": "GET - Listar Animales",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/animales",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Listar Animales con Filtros",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/animales?ID_Categoria=1&Sexo=Hembra",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Animal por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/animales/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Animales con Detalle",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/animales-con-detalle",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Estado de Animal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/animales/1/estado",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Historial de Animal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/animales/1/historial",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Recordatorios de Animal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/animales/1/recordatorios",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Animal",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/animales",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Nuevo Animal",
+                "Sexo": "Macho",
+                "Color": "Negro",
+                "Peso": "500 kg",
+                "Fecha_Nacimiento": "2023-01-01",
+                "Raza": "Holstein",
+                "Esta_Preniada": 0,
+                "Fecha_Ingreso": "2023-01-05",
+                "ID_Categoria": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Animal",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/animales/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Animal Actualizado",
+                "Sexo": "Macho",
+                "Color": "Negro",
+                "Peso": "550 kg",
+                "Fecha_Nacimiento": "2023-01-01",
+                "Raza": "Holstein",
+                "Esta_Preniada": 0,
+                "Fecha_Ingreso": "2023-01-05",
+                "ID_Categoria": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Animal",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/animales/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recordatorios",
+      "items": [
+        {
+          "name": "GET - Listar Recordatorios",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/recordatorios",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Listar Recordatorios con Filtros",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/recordatorios?ID_Animal=1",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Recordatorio por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/recordatorios/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Recordatorio",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/recordatorios",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "Titulo": "Nuevo Recordatorio",
+                "Descripcion": "Descripción del recordatorio",
+                "Fecha_Recordatorio": "2024-12-31"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Recordatorio",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/recordatorios/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "Titulo": "Recordatorio Actualizado",
+                "Descripcion": "Descripción actualizada",
+                "Fecha_Recordatorio": "2024-12-31"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Recordatorio",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/recordatorios/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Historial Veterinario",
+      "items": [
+        {
+          "name": "GET - Listar Historial",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/historial",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Evento por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/historial/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Evento",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/historial",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "Tipo_Evento": "Vacunación",
+                "Descripcion": "Nueva vacuna aplicada",
+                "Fecha_Aplicacion": "2024-01-01",
+                "Proxima_Fecha": "2024-07-01",
+                "Hecho_Por": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Evento",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/historial/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "Tipo_Evento": "Vacunación",
+                "Descripcion": "Evento actualizado",
+                "Fecha_Aplicacion": "2024-01-01",
+                "Proxima_Fecha": "2024-07-01",
+                "Hecho_Por": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Evento",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/historial/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estados",
+      "items": [
+        {
+          "name": "GET - Listar Estados",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/estados",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Estado por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/estados/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Estado",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/estados",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Nuevo Estado"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Estado",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/estados/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "Nombre": "Estado Actualizado"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Estado",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/estados/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estado Animal",
+      "items": [
+        {
+          "name": "GET - Listar Estados Animal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/estado-animal",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Listar Estados Animal con Filtros",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/estado-animal?ID_Animal=1",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Estado Animal por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/estado-animal/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Estado Animal",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/estado-animal",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "ID_Estado": 1,
+                "Fecha_Fallecimiento": null
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Estado Animal",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/estado-animal/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "ID_Estado": 2,
+                "Fecha_Fallecimiento": null
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Estado Animal",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/estado-animal/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ventas",
+      "items": [
+        {
+          "name": "GET - Listar Ventas",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/ventas",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Listar Ventas con Filtros",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/ventas?ID_Animal=1",
+            "headers": []
+          }
+        },
+        {
+          "name": "GET - Obtener Venta por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/ventas/1",
+            "headers": []
+          }
+        },
+        {
+          "name": "POST - Crear Venta",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ventas",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "Fecha_Venta": "2024-01-01",
+                "Tipo_Venta": "Venta Directa",
+                "Comprador": "Comprador Ejemplo",
+                "Precio": 3000.00,
+                "Registrado_Por": 1,
+                "Observaciones": "Venta de ejemplo"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar Venta",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/ventas/1",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "json",
+              "json": {
+                "ID_Animal": 1,
+                "Fecha_Venta": "2024-01-01",
+                "Tipo_Venta": "Venta Actualizada",
+                "Comprador": "Comprador Actualizado",
+                "Precio": 3500.00,
+                "Registrado_Por": 1,
+                "Observaciones": "Venta actualizada"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE - Eliminar Venta",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/ventas/1",
+            "headers": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "items": [
+        {
+          "name": "GET - Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/../health",
+            "headers": []
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "name": "Local",
+      "data": [
+        {
+          "name": "baseUrl",
+          "value": "http://localhost:3000/api"
+        }
+      ]
+    }
+  ]
+}
