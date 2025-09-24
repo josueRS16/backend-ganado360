@@ -1,4 +1,5 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
+const estadoAnimalRepo = require('./estadoAnimal.repo');
 
 class VentasRepository {
   async findAll(filters = {}) {
@@ -55,12 +56,48 @@ class VentasRepository {
       throw new Error('Ya existe una venta para este animal');
     }
     
-    const result = await executeNonQuery(
-      'INSERT INTO Venta (ID_Animal, Fecha_Venta, Tipo_Venta, Comprador, Precio, Registrado_Por, Observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [ID_Animal, Fecha_Venta, Tipo_Venta, Comprador, Precio, Registrado_Por, Observaciones]
-    );
+    // Verificar el estado actual del animal (debe ser estado 12 = "viva")
+    const estadoAnimal = await estadoAnimalRepo.findByAnimalId(ID_Animal); 
+    if (!estadoAnimal) {
+      throw new Error('El animal no tiene un estado asignado');
+    }
     
-    return await this.findById(result.insertId);
+    if (estadoAnimal.ID_Estado !== 12) {
+      throw new Error('Solo se pueden vender animales que estén en estado "viva"');
+    }
+    
+    // Iniciar transacción para asegurar atomicidad
+    const { pool } = require('../db/pool');
+    const connection = await pool.getConnection();
+    
+    try {
+      await connection.beginTransaction();
+      
+      // Crear la venta
+      const [result] = await connection.execute(
+        'INSERT INTO Venta (ID_Animal, Fecha_Venta, Tipo_Venta, Comprador, Precio, Registrado_Por, Observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [ID_Animal, Fecha_Venta, Tipo_Venta, Comprador, Precio, Registrado_Por, Observaciones]
+      );
+      
+      // Actualizar el estado del animal a "vendida" (ID: 9)
+      const [updateResult] = await connection.execute(
+        'UPDATE Estado_Animal SET ID_Estado = ? WHERE ID_Animal = ?',
+        [9, ID_Animal]
+      );
+      
+      if (updateResult.affectedRows === 0) {
+        throw new Error('Error al actualizar el estado del animal a "vendida"');
+      }
+      
+      await connection.commit();
+      
+      return await this.findById(result.insertId);
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   }
 
   async update(id, ventaData) {

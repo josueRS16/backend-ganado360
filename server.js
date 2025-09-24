@@ -44,6 +44,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
   }
 }));
 
+// Servir archivos estáticos del directorio uploads
+app.use('/uploads', express.static('uploads'));
+
 // API Routes
 app.use('/api', apiRoutes);
 

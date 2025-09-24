@@ -1,11 +1,14 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
+const estadoAnimalRepo = require('./estadoAnimal.repo');
 
 class AnimalsRepository {
   async findAll(filters = {}) {
     let sql = `
-      SELECT a.*, c.Tipo as CategoriaTipo 
+      SELECT a.*, c.Tipo as CategoriaTipo, e.Nombre as EstadoNombre, ea.ID_Estado_Animal
       FROM Animal a 
       LEFT JOIN Categoria c ON a.ID_Categoria = c.ID_Categoria
+      LEFT JOIN Estado_Animal ea ON a.ID_Animal = ea.ID_Animal
+      LEFT JOIN Estado e ON ea.ID_Estado = e.ID_Estado
     `;
     
     const params = [];
@@ -54,9 +57,11 @@ class AnimalsRepository {
 
   async count(filters = {}) {
     let sql = `
-      SELECT COUNT(*) as total
+      SELECT COUNT(DISTINCT a.ID_Animal) as total
       FROM Animal a 
       LEFT JOIN Categoria c ON a.ID_Categoria = c.ID_Categoria
+      LEFT JOIN Estado_Animal ea ON a.ID_Animal = ea.ID_Animal
+      LEFT JOIN Estado e ON ea.ID_Estado = e.ID_Estado
     `;
     
     const params = [];
@@ -107,32 +112,62 @@ class AnimalsRepository {
   async create(animalData) {
     const {
       Nombre, Sexo, Color, Peso, Fecha_Nacimiento, Raza,
-      Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria
+      Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria,
+      Imagen_URL
     } = animalData;
     
-    const result = await executeNonQuery(`
-      INSERT INTO Animal (Nombre, Sexo, Color, Peso, Fecha_Nacimiento, Raza, 
-                         Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [Nombre, Sexo, Color, Peso, Fecha_Nacimiento, Raza, 
-        Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria]);
+    // Iniciar transacción para asegurar atomicidad
+    const { pool } = require('../db/pool');
+    const connection = await pool.getConnection();
     
-    return await this.findById(result.insertId);
+    try {
+      await connection.beginTransaction();
+      
+      // Crear el animal
+      const [result] = await connection.execute(`
+        INSERT INTO Animal (Nombre, Sexo, Color, Peso, Fecha_Nacimiento, Raza, 
+                           Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria, Imagen_URL)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [Nombre, Sexo, Color, Peso, Fecha_Nacimiento, Raza, 
+          Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria, Imagen_URL]);
+      
+      const animalId = result.insertId;
+      
+      // Crear estado del animal por defecto (ID: 12 = "viva")
+      const [estadoResult] = await connection.execute(
+        'INSERT INTO Estado_Animal (ID_Animal, ID_Estado, Fecha_Fallecimiento) VALUES (?, ?, ?)',
+        [animalId, 12, null]
+      );
+      
+      if (estadoResult.affectedRows === 0) {
+        throw new Error('Error al crear el estado inicial del animal');
+      }
+      
+      await connection.commit();
+      
+      return await this.findById(animalId);
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   }
 
   async update(id, animalData) {
     const {
       Nombre, Sexo, Color, Peso, Fecha_Nacimiento, Raza,
-      Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria
+      Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria,
+      Imagen_URL
     } = animalData;
     
     const result = await executeNonQuery(`
       UPDATE Animal SET Nombre = ?, Sexo = ?, Color = ?, Peso = ?, Fecha_Nacimiento = ?, 
-                       Raza = ?, Esta_Preniada = ?, Fecha_Monta = ?, Fecha_Estimada_Parto = ?, 
-                       Fecha_Ingreso = ?, ID_Categoria = ?
+                    Raza = ?, Esta_Preniada = ?, Fecha_Monta = ?, Fecha_Estimada_Parto = ?, 
+                    Fecha_Ingreso = ?, ID_Categoria = ?, Imagen_URL = ?
       WHERE ID_Animal = ?
     `, [Nombre, Sexo, Color, Peso, Fecha_Nacimiento, Raza, 
-        Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria, id]);
+        Esta_Preniada, Fecha_Monta, Fecha_Estimada_Parto, Fecha_Ingreso, ID_Categoria, Imagen_URL, id]);
     
     if (result.affectedRows === 0) {
       return null;
@@ -141,11 +176,20 @@ class AnimalsRepository {
     return await this.findById(id);
   }
 
+
   async delete(id) {
+    // Obtener los datos del animal antes de eliminarlo para limpiar la imagen
+    const animal = await this.findById(id);
+    
     const result = await executeNonQuery(
       'DELETE FROM Animal WHERE ID_Animal = ?',
       [id]
     );
+    
+    // Si la eliminación fue exitosa y el animal tenía imagen, limpiarla
+    if (result.affectedRows > 0 && animal && animal.Imagen_URL) {
+      await this.handleImageCleanup(animal.Imagen_URL);
+    }
     
     return result.affectedRows > 0;
   }

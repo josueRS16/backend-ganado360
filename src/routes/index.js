@@ -11,6 +11,7 @@ const historialRoutes = require('./historial');
 const estadosRoutes = require('./estados');
 const estadoAnimalRoutes = require('./estadoAnimal');
 const ventasRoutes = require('./ventas');
+const uploadRoutes = require('./upload');
 
 // Registrar rutas
 router.use('/roles', rolesRoutes);
@@ -22,5 +23,6 @@ router.use('/historial', historialRoutes);
 router.use('/estados', estadosRoutes);
 router.use('/estado-animal', estadoAnimalRoutes);
 router.use('/ventas', ventasRoutes);
+router.use('/upload', uploadRoutes);
 
 module.exports = router;

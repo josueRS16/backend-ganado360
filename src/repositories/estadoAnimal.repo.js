@@ -63,11 +63,11 @@ class EstadoAnimalRepository {
   }
 
   async update(id, estadoAnimalData) {
-    const { ID_Animal, ID_Estado, Fecha_Fallecimiento } = estadoAnimalData;
+    const { ID_Estado, Fecha_Fallecimiento } = estadoAnimalData;
     
     const result = await executeNonQuery(
-      'UPDATE Estado_Animal SET ID_Animal = ?, ID_Estado = ?, Fecha_Fallecimiento = ? WHERE ID_Estado_Animal = ?',
-      [ID_Animal, ID_Estado, Fecha_Fallecimiento, id]
+      'UPDATE Estado_Animal SET ID_Estado = 10, Fecha_Fallecimiento = ? WHERE ID_Estado_Animal = ?',
+      [Fecha_Fallecimiento, id]
     );
     
     if (result.affectedRows === 0) {
@@ -75,6 +75,15 @@ class EstadoAnimalRepository {
     }
     
     return await this.findById(id);
+  }
+
+  async updateByAnimalId(animalId, nuevoEstado) {
+    const result = await executeNonQuery(
+      'UPDATE Estado_Animal SET ID_Estado = ? WHERE ID_Animal = ?',
+      [nuevoEstado, animalId]
+    );
+    
+    return result.affectedRows > 0;
   }
 
   async delete(id) {
