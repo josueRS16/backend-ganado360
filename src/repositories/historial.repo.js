@@ -1,6 +1,10 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
 
 class HistorialRepository {
+  async count() {
+    const result = await execute('SELECT COUNT(*) as total FROM Historial_Veterinario');
+    return result[0]?.total || 0;
+  }
   async findAll() {
     return await execute(`
       SELECT hv.*, a.Nombre as AnimalNombre, u.Nombre as UsuarioNombre 

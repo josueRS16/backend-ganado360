@@ -1,7 +1,11 @@
+
 const express = require('express');
 const recordatoriosController = require('../controllers/recordatorios.controller');
-
 const router = express.Router();
+// Cambiar estado de recordatorio (hecho/pendiente)
+router.patch('/:id/estado', recordatoriosController.updateEstado);
+// Recordatorios automáticos (no guardados en BD)
+router.get('/auto', recordatoriosController.getAutomaticos);
 
 /**
  * @swagger

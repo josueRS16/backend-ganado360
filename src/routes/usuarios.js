@@ -1,7 +1,9 @@
+
 const express = require('express');
 const usuariosController = require('../controllers/usuarios.controller');
-
 const router = express.Router();
+// Endpoint para login
+router.post('/login', usuariosController.login);
 
 /**
  * @swagger

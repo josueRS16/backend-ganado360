@@ -19,6 +19,11 @@ class AnimalsController {
         Esta_Preniada: req.query.Esta_Preniada !== undefined ? 
           (req.query.Esta_Preniada === '1' || req.query.Esta_Preniada === 'true') : undefined
       };
+      // Si se recibe ID_Estado = 12, filtrar por EstadoNombre = 'vivo' y también por ID_Estado = 12
+      if (req.query.ID_Estado && String(req.query.ID_Estado) === '12') {
+        filters.EstadoNombre = 'vivo';
+        filters.ID_Estado = 12;
+      }
 
       // Add pagination parameters only if pagination is requested
       if (hasPagination) {
@@ -82,6 +87,28 @@ class AnimalsController {
   async create(req, res) {
     try {
       const animal = await animalsRepository.create(req.body);
+      // Si es vaca preñada y tiene fecha de parto, crear recordatorio automático si no existe
+      if (animal.Esta_Preniada && animal.Fecha_Estimada_Parto) {
+        const recordatoriosRepo = require('../repositories/recordatorios.repo');
+        // Buscar en toda la base de datos si ya existe un recordatorio de parto para este animal
+        const todosExistentes = await recordatoriosRepo.findAll();
+        const yaExiste = todosExistentes.some(r => r.ID_Animal === animal.ID_Animal && r.Titulo === 'Parto estimado');
+        function formatDateDMY(dateStr) {
+          const d = new Date(dateStr);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = d.getFullYear();
+          return `${day}-${month}-${year}`;
+        }
+        if (!yaExiste) {
+          await recordatoriosRepo.create({
+            ID_Animal: animal.ID_Animal,
+            Titulo: 'Parto estimado',
+            Descripcion: `La vaca "${animal.Nombre}" tiene parto estimado para el ${formatDateDMY(animal.Fecha_Estimada_Parto)}`,
+            Fecha_Recordatorio: animal.Fecha_Estimada_Parto
+          });
+        }
+      }
       res.status(201).json({ data: animal });
     } catch (error) {
       console.error('Error en create animal:', error);
@@ -102,7 +129,28 @@ class AnimalsController {
       if (!animal) {
         return res.status(404).json({ error: 'Animal no encontrado' });
       }
-      
+      // Si es vaca preñada y tiene fecha de parto, crear recordatorio automático si no existe
+      if (animal.Esta_Preniada && animal.Fecha_Estimada_Parto) {
+        const recordatoriosRepo = require('../repositories/recordatorios.repo');
+        // Buscar en toda la base de datos si ya existe un recordatorio de parto para este animal
+        const todosExistentes = await recordatoriosRepo.findAll();
+        const yaExiste = todosExistentes.some(r => r.ID_Animal === animal.ID_Animal && r.Titulo === 'Parto estimado');
+        function formatDateDMY(dateStr) {
+          const d = new Date(dateStr);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = d.getFullYear();
+          return `${day}-${month}-${year}`;
+        }
+        if (!yaExiste) {
+          await recordatoriosRepo.create({
+            ID_Animal: animal.ID_Animal,
+            Titulo: 'Parto estimado',
+            Descripcion: `La vaca "${animal.Nombre}" tiene parto estimado para el ${formatDateDMY(animal.Fecha_Estimada_Parto)}`,
+            Fecha_Recordatorio: animal.Fecha_Estimada_Parto
+          });
+        }
+      }
       res.json({ data: animal });
     } catch (error) {
       console.error('Error en update animal:', error);
