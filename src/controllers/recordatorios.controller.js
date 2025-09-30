@@ -16,7 +16,6 @@ class RecordatoriosController {
       }
       res.json({ updated: true });
     } catch (error) {
-      console.error('Error en updateEstado recordatorio:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -28,7 +27,6 @@ class RecordatoriosController {
       const todos = await recordatoriosRepository.findAll();
       res.json({ data: todos, count: todos.length });
     } catch (error) {
-      console.error('Error en getAutomaticos recordatorios:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -85,7 +83,6 @@ class RecordatoriosController {
         }
       });
     } catch (error) {
-      console.error('Error en getAll recordatorios:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -99,7 +96,6 @@ class RecordatoriosController {
       }
       res.json({ data: recordatorio });
     } catch (error) {
-      console.error('Error en getById recordatorio:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -109,7 +105,6 @@ class RecordatoriosController {
       const recordatorio = await recordatoriosRepository.create(req.body);
       res.status(201).json({ data: recordatorio });
     } catch (error) {
-      console.error('Error en create recordatorio:', error);
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
         return res.status(409).json({ error: 'El animal especificado no existe' });
       }
@@ -126,7 +121,6 @@ class RecordatoriosController {
       }
       res.json({ data: recordatorio });
     } catch (error) {
-      console.error('Error en update recordatorio:', error);
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
         return res.status(409).json({ error: 'El animal especificado no existe' });
       }
@@ -143,7 +137,6 @@ class RecordatoriosController {
       }
       res.json({ deleted: true });
     } catch (error) {
-      console.error('Error en delete recordatorio:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -154,7 +147,6 @@ class RecordatoriosController {
       const recordatorios = await recordatoriosRepository.findByAnimalId(id);
       res.json({ data: recordatorios, count: recordatorios.length });
     } catch (error) {
-      console.error('Error en getByAnimalId recordatorios:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }

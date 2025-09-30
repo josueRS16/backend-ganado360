@@ -29,19 +29,14 @@ const uploadController = require('../controllers/upload.controller');
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: true
  *                 imageUrl:
  *                   type: string
- *                   example: "http://localhost:3000/uploads/image-1234567890-123456789.jpg"
  *                 filename:
  *                   type: string
- *                   example: "image-1234567890-123456789.jpg"
  *                 originalName:
  *                   type: string
- *                   example: "mi-imagen.jpg"
  *                 size:
  *                   type: number
- *                   example: 1024000
  *       400:
  *         description: No se recibió ningún archivo
  *         content:
@@ -51,10 +46,8 @@ const uploadController = require('../controllers/upload.controller');
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: false
  *                 message:
  *                   type: string
- *                   example: "No se recibió ningún archivo"
  *       500:
  *         description: Error interno del servidor
  */
@@ -74,7 +67,6 @@ router.post('/image', uploadController.upload.single('image'), uploadController.
  *         schema:
  *           type: string
  *         description: Nombre del archivo de imagen a eliminar (incluyendo extensión)
- *         example: "image-1758572515607-359276024.JPG"
  *     responses:
  *       200:
  *         description: Imagen eliminada y referencias actualizadas exitosamente
@@ -85,13 +77,10 @@ router.post('/image', uploadController.upload.single('image'), uploadController.
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: true
  *                 message:
  *                   type: string
- *                   example: "Imagen eliminada exitosamente. 2 registro(s) actualizado(s) en la base de datos."
  *                 affectedRecords:
  *                   type: number
- *                   example: 2
  *       404:
  *         description: Archivo no encontrado
  *         content:
@@ -101,10 +90,8 @@ router.post('/image', uploadController.upload.single('image'), uploadController.
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: false
  *                 message:
  *                   type: string
- *                   example: "Archivo no encontrado"
  *       500:
  *         description: Error interno del servidor
  *         content:
@@ -114,10 +101,8 @@ router.post('/image', uploadController.upload.single('image'), uploadController.
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: false
  *                 message:
  *                   type: string
- *                   example: "Error al eliminar la imagen y actualizar la base de datos"
  */
 router.delete('/image/:filename', uploadController.deleteImage);
 

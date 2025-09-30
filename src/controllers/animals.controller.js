@@ -63,7 +63,6 @@ class AnimalsController {
 
       res.json(response);
     } catch (error) {
-      console.error('Error en getAll animales:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -79,7 +78,6 @@ class AnimalsController {
       
       res.json({ data: animal });
     } catch (error) {
-      console.error('Error en getById animal:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -111,7 +109,6 @@ class AnimalsController {
       }
       res.status(201).json({ data: animal });
     } catch (error) {
-      console.error('Error en create animal:', error);
       
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
         return res.status(409).json({ error: 'La categoría especificada no existe' });
@@ -153,7 +150,6 @@ class AnimalsController {
       }
       res.json({ data: animal });
     } catch (error) {
-      console.error('Error en update animal:', error);
       
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
         return res.status(409).json({ error: 'La categoría especificada no existe' });
@@ -174,7 +170,6 @@ class AnimalsController {
       
       res.json({ deleted: true });
     } catch (error) {
-      console.error('Error en delete animal:', error);
       
       if (error.code === 'ER_ROW_IS_REFERENCED_2') {
         return res.status(409).json({ error: 'No se puede eliminar el animal porque está siendo referenciado en otras tablas' });
@@ -189,7 +184,6 @@ class AnimalsController {
       const animales = await animalsRepository.findWithDetails();
       res.json({ data: animales, count: animales.length });
     } catch (error) {
-      console.error('Error en getWithDetails animales:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }

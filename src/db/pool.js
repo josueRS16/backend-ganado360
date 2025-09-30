@@ -23,7 +23,6 @@ const execute = async (sql, params = []) => {
     const [rows] = await promisePool.execute(sql, params);
     return rows;
   } catch (error) {
-    console.error('Error en query:', sql, params, error);
     throw error;
   }
 };
@@ -34,7 +33,6 @@ const executeNonQuery = async (sql, params = []) => {
     const [result] = await promisePool.execute(sql, params);
     return result;
   } catch (error) {
-    console.error('Error en query:', sql, params, error);
     throw error;
   }
 };
