@@ -5,53 +5,56 @@ class AnimalsRepository {
   async findAll(filters = {}) {
     let sql = `
       SELECT a.*, c.Tipo as CategoriaTipo, e.Nombre as EstadoNombre, ea.ID_Estado_Animal
-      FROM Animal a 
+      FROM Animal a
       LEFT JOIN Categoria c ON a.ID_Categoria = c.ID_Categoria
       LEFT JOIN Estado_Animal ea ON a.ID_Animal = ea.ID_Animal
       LEFT JOIN Estado e ON ea.ID_Estado = e.ID_Estado
+      WHERE ea.ID_Estado_Animal = (
+        SELECT MAX(ea2.ID_Estado_Animal)
+        FROM Estado_Animal ea2
+        WHERE ea2.ID_Animal = a.ID_Animal
+      )
     `;
     
     const params = [];
     const conditions = [];
-    
     if (filters.ID_Categoria) {
       conditions.push('a.ID_Categoria = ?');
       params.push(filters.ID_Categoria);
     }
-    
     if (filters.Sexo) {
       conditions.push('a.Sexo = ?');
       params.push(filters.Sexo);
     }
-    
     if (filters.fechaIngresoDesde) {
       conditions.push('a.Fecha_Ingreso >= ?');
       params.push(filters.fechaIngresoDesde);
     }
-    
     if (filters.fechaIngresoHasta) {
       conditions.push('a.Fecha_Ingreso <= ?');
       params.push(filters.fechaIngresoHasta);
     }
-    
     if (filters.Esta_Preniada !== undefined) {
       conditions.push('a.Esta_Preniada = ?');
       params.push(filters.Esta_Preniada);
     }
-    
-    if (conditions.length > 0) {
-      sql += ' WHERE ' + conditions.join(' AND ');
+    if (filters.EstadoNombre) {
+      conditions.push('e.Nombre = ?');
+      params.push(filters.EstadoNombre);
     }
-    
+    if (filters.ID_Estado) {
+      conditions.push('ea.ID_Estado = ?');
+      params.push(filters.ID_Estado);
+    }
+    if (conditions.length > 0) {
+      sql += ' AND ' + conditions.join(' AND ');
+    }
     sql += ' ORDER BY a.Nombre';
-    
-    // Add pagination only if limit is provided
     if (filters.limit !== null && filters.limit !== undefined) {
       const limit = filters.limit;
       const offset = filters.offset || 0;
       sql += ` LIMIT ${limit} OFFSET ${offset}`;
     }
-    
     return await execute(sql, params);
   }
 

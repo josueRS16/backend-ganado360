@@ -12,6 +12,7 @@ const estadosRoutes = require('./estados');
 const estadoAnimalRoutes = require('./estadoAnimal');
 const ventasRoutes = require('./ventas');
 const uploadRoutes = require('./upload');
+const authRoutes = require('./auth.routes');
 
 // Registrar rutas
 router.use('/roles', rolesRoutes);
@@ -24,5 +25,6 @@ router.use('/estados', estadosRoutes);
 router.use('/estado-animal', estadoAnimalRoutes);
 router.use('/ventas', ventasRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/auth', authRoutes);
 
 module.exports = router;

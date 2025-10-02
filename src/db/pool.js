@@ -5,7 +5,7 @@ const pool = mysql.createPool({
   host: process.env.MYSQL_HOST || 'localhost',
   port: process.env.MYSQL_PORT || 3306,
   user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '',
+  password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE || 'GanadoDB',
   waitForConnections: true,
   connectionLimit: 10,
@@ -23,7 +23,6 @@ const execute = async (sql, params = []) => {
     const [rows] = await promisePool.execute(sql, params);
     return rows;
   } catch (error) {
-    console.error('Error en query:', sql, params, error);
     throw error;
   }
 };
@@ -34,7 +33,6 @@ const executeNonQuery = async (sql, params = []) => {
     const [result] = await promisePool.execute(sql, params);
     return result;
   } catch (error) {
-    console.error('Error en query:', sql, params, error);
     throw error;
   }
 };

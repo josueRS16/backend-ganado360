@@ -1,14 +1,28 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
 
 class HistorialRepository {
-  async findAll() {
-    return await execute(`
+  async count() {
+    const result = await execute('SELECT COUNT(*) as total FROM Historial_Veterinario');
+    return result[0]?.total || 0;
+  }
+  async findAll(options = {}) {
+    let sql = `
       SELECT hv.*, a.Nombre as AnimalNombre, u.Nombre as UsuarioNombre 
       FROM Historial_Veterinario hv 
       JOIN Animal a ON hv.ID_Animal = a.ID_Animal
       LEFT JOIN Usuario u ON hv.Hecho_Por = u.ID_Usuario
       ORDER BY hv.Fecha_Aplicacion DESC
-    `);
+    `;
+    
+    const params = [];
+    
+    // Add pagination if limit and offset are provided
+    if (options.limit && options.offset !== undefined) {
+      sql += ` LIMIT ? OFFSET ?`;
+      params.push(options.limit, options.offset);
+    }
+    
+    return await execute(sql, params);
   }
 
   async findById(id) {

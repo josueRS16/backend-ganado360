@@ -6,7 +6,6 @@ class EstadosController {
       const estados = await estadosRepository.findAll();
       res.json({ data: estados, count: estados.length });
     } catch (error) {
-      console.error('Error en getAll estados:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -22,7 +21,6 @@ class EstadosController {
       
       res.json({ data: estado });
     } catch (error) {
-      console.error('Error en getById estado:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
@@ -32,7 +30,6 @@ class EstadosController {
       const estado = await estadosRepository.create(req.body);
       res.status(201).json({ data: estado });
     } catch (error) {
-      console.error('Error en create estado:', error);
       
       if (error.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ error: 'Ya existe un estado con ese nombre' });
@@ -53,7 +50,6 @@ class EstadosController {
       
       res.json({ data: estado });
     } catch (error) {
-      console.error('Error en update estado:', error);
       
       if (error.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ error: 'Ya existe un estado con ese nombre' });
@@ -74,7 +70,6 @@ class EstadosController {
       
       res.json({ deleted: true });
     } catch (error) {
-      console.error('Error en delete estado:', error);
       
       if (error.code === 'ER_ROW_IS_REFERENCED_2') {
         return res.status(409).json({ error: 'No se puede eliminar el estado porque está siendo usado por animales' });

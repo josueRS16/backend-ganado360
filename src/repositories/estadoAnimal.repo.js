@@ -63,17 +63,18 @@ class EstadoAnimalRepository {
   }
 
   async update(id, estadoAnimalData) {
-    const { ID_Estado, Fecha_Fallecimiento } = estadoAnimalData;
-    
+    let { ID_Estado, Fecha_Fallecimiento } = estadoAnimalData;
+    // Validar que ID_Estado siempre tenga un valor válido
+    if (typeof ID_Estado === 'undefined' || ID_Estado === null) {
+      throw new Error("ID_Estado es obligatorio y no puede ser null");
+    }
     const result = await executeNonQuery(
-      'UPDATE Estado_Animal SET ID_Estado = 10, Fecha_Fallecimiento = ? WHERE ID_Estado_Animal = ?',
-      [Fecha_Fallecimiento, id]
+      'UPDATE Estado_Animal SET ID_Estado = ?, Fecha_Fallecimiento = ? WHERE ID_Estado_Animal = ?',
+      [ID_Estado, Fecha_Fallecimiento, id]
     );
-    
     if (result.affectedRows === 0) {
       return null;
     }
-    
     return await this.findById(id);
   }
 

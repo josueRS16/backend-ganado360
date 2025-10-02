@@ -54,19 +54,18 @@ class EstadoAnimalController {
     try {
       const { id } = req.params;
       const estadoAnimal = await estadoAnimalRepository.update(id, req.body);
-      
       if (!estadoAnimal) {
         return res.status(404).json({ error: 'Estado del animal no encontrado' });
       }
-      
       res.json({ data: estadoAnimal });
     } catch (error) {
       console.error('Error en update estadoAnimal:', error);
-      
+      if (error.message && error.message.includes('ID_Estado es obligatorio')) {
+        return res.status(400).json({ error: 'ID_Estado es obligatorio y no puede ser null' });
+      }
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
         return res.status(409).json({ error: 'El animal o estado especificado no existe' });
       }
-      
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }

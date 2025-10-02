@@ -1,6 +1,17 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
 
 class UsuariosRepository {
+  async findByCorreo(correo) {
+    return await getOne('SELECT * FROM Usuario WHERE Correo = ?', [correo]);
+  }
+
+  async findByNombre(nombre) {
+    return await getOne('SELECT * FROM Usuario WHERE Nombre = ?', [nombre]);
+  }
+
+  async login({ Correo, Contraseña }) {
+    return await getOne('SELECT * FROM Usuario WHERE Correo = ? AND Contraseña = ?', [Correo, Contraseña]);
+  }
   async findAll() {
     return await execute(`
       SELECT u.*, r.Nombre as RolNombre 
