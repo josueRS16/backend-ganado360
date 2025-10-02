@@ -1,3 +1,4 @@
+
 const ventasRepository = require('../repositories/ventas.repo');
 
 class VentasController {
@@ -8,12 +9,11 @@ class VentasController {
         fechaDesde: req.query.fechaDesde,
         fechaHasta: req.query.fechaHasta
       };
-      
       const ventas = await ventasRepository.findAll(filters);
       res.json({ data: ventas, count: ventas.length });
     } catch (error) {
       console.error('Error en getAll ventas:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
+      res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
 
@@ -21,15 +21,13 @@ class VentasController {
     try {
       const { id } = req.params;
       const venta = await ventasRepository.findById(id);
-      
       if (!venta) {
-        return res.status(404).json({ error: 'Venta no encontrada' });
+        return res.status(404).json({ message: 'Venta no encontrada' });
       }
-      
       res.json({ data: venta });
     } catch (error) {
       console.error('Error en getById venta:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
+      res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
 
@@ -39,16 +37,16 @@ class VentasController {
       res.status(201).json({ data: venta });
     } catch (error) {
       console.error('Error en create venta:', error);
-      
       if (error.message === 'Ya existe una venta para este animal') {
-        return res.status(409).json({ error: error.message });
+        return res.status(409).json({ message: error.message });
       }
-      
+      if (error.message === 'Solo se pueden vender animales que estén en estado "viva"') {
+        return res.status(400).json({ message: error.message });
+      }
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
-        return res.status(409).json({ error: 'El animal o usuario especificado no existe' });
+        return res.status(409).json({ message: 'El animal o usuario especificado no existe' });
       }
-      
-      res.status(500).json({ error: 'Error interno del servidor' });
+      res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
 
@@ -56,20 +54,16 @@ class VentasController {
     try {
       const { id } = req.params;
       const venta = await ventasRepository.update(id, req.body);
-      
       if (!venta) {
-        return res.status(404).json({ error: 'Venta no encontrada' });
+        return res.status(404).json({ message: 'Venta no encontrada' });
       }
-      
       res.json({ data: venta });
     } catch (error) {
       console.error('Error en update venta:', error);
-      
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
-        return res.status(409).json({ error: 'El animal o usuario especificado no existe' });
+        return res.status(409).json({ message: 'El animal o usuario especificado no existe' });
       }
-      
-      res.status(500).json({ error: 'Error interno del servidor' });
+      res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
 
@@ -77,15 +71,13 @@ class VentasController {
     try {
       const { id } = req.params;
       const deleted = await ventasRepository.delete(id);
-      
       if (!deleted) {
-        return res.status(404).json({ error: 'Venta no encontrada' });
+        return res.status(404).json({ message: 'Venta no encontrada' });
       }
-      
       res.json({ deleted: true });
     } catch (error) {
       console.error('Error en delete venta:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
+      res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
 }
