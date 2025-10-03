@@ -181,8 +181,64 @@ class AnimalsController {
 
   async getWithDetails(req, res) {
     try {
-      const animales = await animalsRepository.findWithDetails();
-      res.json({ data: animales, count: animales.length });
+      // Check if pagination parameters are provided (both page AND limit must be provided)
+      const hasPagination = req.query.page !== undefined && req.query.limit !== undefined;
+      
+      // Parse pagination parameters only if provided
+      const page = hasPagination ? (parseInt(req.query.page) || 1) : 1;
+      const limit = hasPagination ? (parseInt(req.query.limit) || 5) : null;
+      const offset = hasPagination ? (page - 1) * limit : null;
+
+      const filters = {
+        ID_Categoria: req.query.ID_Categoria,
+        Sexo: req.query.Sexo,
+        fechaIngresoDesde: req.query.fechaIngresoDesde,
+        fechaIngresoHasta: req.query.fechaIngresoHasta,
+        Esta_Preniada: req.query.Esta_Preniada !== undefined ? 
+          (req.query.Esta_Preniada === '1' || req.query.Esta_Preniada === 'true') : undefined,
+        ID_Estado: req.query.ID_Estado,
+        fechaVentaDesde: req.query.fechaVentaDesde,
+        fechaVentaHasta: req.query.fechaVentaHasta,
+        Tipo_Venta: req.query.Tipo_Venta
+      };
+
+      // Add pagination parameters only if pagination is requested
+      if (hasPagination) {
+        filters.limit = limit;
+        filters.offset = offset;
+      }
+      
+      // Get animals with details and total count
+      const [animales, totalCount] = await Promise.all([
+        animalsRepository.findWithDetails(filters),
+        animalsRepository.countWithDetails(filters)
+      ]);
+
+      // Prepare response
+      const response = { 
+        data: animales, 
+        count: animales.length
+      };
+
+      // Add pagination metadata only if pagination was requested
+      if (hasPagination) {
+        const totalPages = Math.ceil(totalCount / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        response.pagination = {
+          currentPage: page,
+          totalPages: totalPages,
+          totalCount: totalCount,
+          limit: limit,
+          hasNextPage: hasNextPage,
+          hasPrevPage: hasPrevPage,
+          nextPage: hasNextPage ? page + 1 : null,
+          prevPage: hasPrevPage ? page - 1 : null
+        };
+      }
+
+      res.json(response);
     } catch (error) {
       res.status(500).json({ error: 'Error interno del servidor' });
     }

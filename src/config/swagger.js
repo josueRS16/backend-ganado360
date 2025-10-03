@@ -84,6 +84,132 @@ const options = {
             }
           }
         },
+        AnimalWithDetails: {
+          type: 'object',
+          properties: {
+            ID_Animal: {
+              type: 'integer',
+              description: 'ID único del animal'
+            },
+            Nombre: {
+              type: 'string',
+              description: 'Nombre del animal'
+            },
+            Sexo: {
+              type: 'string',
+              enum: ['M', 'H'],
+              description: 'Sexo del animal (M=Macho, H=Hembra)'
+            },
+            Color: {
+              type: 'string',
+              description: 'Color del animal'
+            },
+            Peso: {
+              type: 'number',
+              format: 'float',
+              description: 'Peso del animal en kg'
+            },
+            Fecha_Nacimiento: {
+              type: 'string',
+              format: 'date',
+              description: 'Fecha de nacimiento del animal'
+            },
+            Raza: {
+              type: 'string',
+              description: 'Raza del animal'
+            },
+            Esta_Preniada: {
+              type: 'boolean',
+              description: 'Si el animal está preñado'
+            },
+            Fecha_Monta: {
+              type: 'string',
+              format: 'date',
+              description: 'Fecha de monta'
+            },
+            Fecha_Estimada_Parto: {
+              type: 'string',
+              format: 'date',
+              description: 'Fecha estimada de parto'
+            },
+            Fecha_Ingreso: {
+              type: 'string',
+              format: 'date',
+              description: 'Fecha de ingreso al sistema'
+            },
+            ID_Categoria: {
+              type: 'integer',
+              description: 'ID de la categoría del animal'
+            },
+            Imagen_URL: {
+              type: 'string',
+              description: 'URL de la imagen del animal'
+            },
+            ID_Estado_Animal: {
+              type: 'integer',
+              description: 'ID del estado del animal'
+            },
+            ID_Estado: {
+              type: 'integer',
+              description: 'ID del estado actual'
+            },
+            Fecha_Fallecimiento: {
+              type: 'string',
+              format: 'date',
+              nullable: true,
+              description: 'Fecha de fallecimiento del animal'
+            },
+            AnimalNombre: {
+              type: 'string',
+              description: 'Nombre del animal (alias)'
+            },
+            EstadoNombre: {
+              type: 'string',
+              description: 'Nombre del estado actual'
+            },
+            CategoriaTipo: {
+              type: 'string',
+              description: 'Tipo de categoría'
+            },
+            ID_Venta: {
+              type: 'integer',
+              nullable: true,
+              description: 'ID de la venta (si existe)'
+            },
+            Fecha_Venta: {
+              type: 'string',
+              format: 'date',
+              nullable: true,
+              description: 'Fecha de venta'
+            },
+            Precio: {
+              type: 'number',
+              format: 'float',
+              nullable: true,
+              description: 'Precio de venta'
+            },
+            Comprador: {
+              type: 'string',
+              nullable: true,
+              description: 'Nombre del comprador'
+            },
+            Tipo_Venta: {
+              type: 'string',
+              nullable: true,
+              description: 'Tipo de venta'
+            },
+            Registrado_Por: {
+              type: 'integer',
+              nullable: true,
+              description: 'ID del usuario que registró la venta'
+            },
+            Observaciones: {
+              type: 'string',
+              nullable: true,
+              description: 'Observaciones de la venta'
+            }
+          }
+        },
         Usuario: {
           type: 'object',
           required: ['Nombre', 'Correo', 'Contraseña', 'RolID'],
