@@ -200,23 +200,161 @@ class AnimalsRepository {
     return result.affectedRows > 0;
   }
 
-  async findWithDetails() {
-    return await execute(`
+  async findWithDetails(filters = {}) {
+    let sql = `
       SELECT 
         a.*,
-        c.Tipo as CategoriaTipo,
+        ea.ID_Estado_Animal,
+        a.ID_Animal,
         ea.ID_Estado,
+        ea.Fecha_Fallecimiento,
+        a.Nombre as AnimalNombre,
         e.Nombre as EstadoNombre,
+        c.Tipo as CategoriaTipo,
         v.ID_Venta,
         v.Fecha_Venta,
-        v.Precio
+        v.Precio,
+        v.Comprador,
+        v.Tipo_Venta,
+        v.Registrado_Por,
+        v.Observaciones,
+        u.Nombre as UsuarioNombre
       FROM Animal a
       LEFT JOIN Categoria c ON a.ID_Categoria = c.ID_Categoria
       LEFT JOIN Estado_Animal ea ON a.ID_Animal = ea.ID_Animal
       LEFT JOIN Estado e ON ea.ID_Estado = e.ID_Estado
       LEFT JOIN Venta v ON a.ID_Animal = v.ID_Animal
-      ORDER BY a.Nombre
-    `);
+      LEFT JOIN Usuario u ON v.Registrado_Por = u.ID_Usuario
+    `;
+    
+    const params = [];
+    const conditions = [];
+    
+    if (filters.ID_Categoria) {
+      conditions.push('a.ID_Categoria = ?');
+      params.push(filters.ID_Categoria);
+    }
+    
+    if (filters.Sexo) {
+      conditions.push('a.Sexo = ?');
+      params.push(filters.Sexo);
+    }
+    
+    if (filters.fechaIngresoDesde) {
+      conditions.push('a.Fecha_Ingreso >= ?');
+      params.push(filters.fechaIngresoDesde);
+    }
+    
+    if (filters.fechaIngresoHasta) {
+      conditions.push('a.Fecha_Ingreso <= ?');
+      params.push(filters.fechaIngresoHasta);
+    }
+    
+    if (filters.Esta_Preniada !== undefined) {
+      conditions.push('a.Esta_Preniada = ?');
+      params.push(filters.Esta_Preniada);
+    }
+    
+    if (filters.ID_Estado) {
+      conditions.push('ea.ID_Estado = ?');
+      params.push(filters.ID_Estado);
+    }
+    
+    if (filters.fechaVentaDesde) {
+      conditions.push('v.Fecha_Venta >= ?');
+      params.push(filters.fechaVentaDesde);
+    }
+    
+    if (filters.fechaVentaHasta) {
+      conditions.push('v.Fecha_Venta <= ?');
+      params.push(filters.fechaVentaHasta);
+    }
+    
+    if (filters.Tipo_Venta) {
+      conditions.push('v.Tipo_Venta = ?');
+      params.push(filters.Tipo_Venta);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    sql += ' ORDER BY a.Nombre';
+    
+    // Add pagination only if limit is provided
+    if (filters.limit !== null && filters.limit !== undefined) {
+      const limit = filters.limit;
+      const offset = filters.offset || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
+    
+    return await execute(sql, params);
+  }
+
+  async countWithDetails(filters = {}) {
+    let sql = `
+      SELECT COUNT(DISTINCT a.ID_Animal) as total
+      FROM Animal a
+      LEFT JOIN Categoria c ON a.ID_Categoria = c.ID_Categoria
+      LEFT JOIN Estado_Animal ea ON a.ID_Animal = ea.ID_Animal
+      LEFT JOIN Estado e ON ea.ID_Estado = e.ID_Estado
+      LEFT JOIN Venta v ON a.ID_Animal = v.ID_Animal
+    `;
+    
+    const params = [];
+    const conditions = [];
+    
+    if (filters.ID_Categoria) {
+      conditions.push('a.ID_Categoria = ?');
+      params.push(filters.ID_Categoria);
+    }
+    
+    if (filters.Sexo) {
+      conditions.push('a.Sexo = ?');
+      params.push(filters.Sexo);
+    }
+    
+    if (filters.fechaIngresoDesde) {
+      conditions.push('a.Fecha_Ingreso >= ?');
+      params.push(filters.fechaIngresoDesde);
+    }
+    
+    if (filters.fechaIngresoHasta) {
+      conditions.push('a.Fecha_Ingreso <= ?');
+      params.push(filters.fechaIngresoHasta);
+    }
+    
+    if (filters.Esta_Preniada !== undefined) {
+      conditions.push('a.Esta_Preniada = ?');
+      params.push(filters.Esta_Preniada);
+    }
+    
+    if (filters.ID_Estado) {
+      conditions.push('ea.ID_Estado = ?');
+      params.push(filters.ID_Estado);
+    }
+    
+    if (filters.fechaVentaDesde) {
+      conditions.push('v.Fecha_Venta >= ?');
+      params.push(filters.fechaVentaDesde);
+    }
+    
+    if (filters.fechaVentaHasta) {
+      conditions.push('v.Fecha_Venta <= ?');
+      params.push(filters.fechaVentaHasta);
+    }
+    
+    if (filters.Tipo_Venta) {
+      conditions.push('v.Tipo_Venta = ?');
+      params.push(filters.Tipo_Venta);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const result = await execute(sql, params);
+    return parseInt(result[0].total);
   }
 }
 

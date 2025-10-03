@@ -36,28 +36,24 @@ const router = express.Router();
  *         schema:
  *           type: string
  *           format: date
- *           example: "2025-09-01"
  *         description: Fecha de ingreso desde (formato YYYY-MM-DD)
  *       - in: query
  *         name: fechaIngresoHasta
  *         schema:
  *           type: string
  *           format: date
- *           example: "2025-09-02"
  *         description: Fecha de ingreso hasta (formato YYYY-MM-DD)
  *       - in: query
  *         name: Esta_Preniada
  *         schema:
  *           type: string
  *           enum: ["0", "1", "true", "false"]
- *           example: "1"
  *         description: Filtrar por estado de preñez (1=true, 0=false)
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           minimum: 1
- *           example: 1
  *         description: Número de página (requiere limit para activar paginación)
  *       - in: query
  *         name: limit
@@ -65,7 +61,6 @@ const router = express.Router();
  *           type: integer
  *           minimum: 1
  *           maximum: 100
- *           example: 5
  *         description: Número de registros por página (requiere page para activar paginación, máximo 100)
  *     responses:
  *       200:
@@ -124,8 +119,73 @@ router.get('/', animalsController.getAll);
  * @swagger
  * /animales/con-detalle:
  *   get:
- *     summary: Obtener animales con detalles completos
+ *     summary: Obtener animales con detalles completos (incluye estado y ventas)
  *     tags: [Animales]
+ *     parameters:
+ *       - in: query
+ *         name: ID_Categoria
+ *         schema:
+ *           type: integer
+ *         description: Filtrar por categoría
+ *       - in: query
+ *         name: Sexo
+ *         schema:
+ *           type: string
+ *           enum: [M, H]
+ *         description: Filtrar por sexo
+ *       - in: query
+ *         name: fechaIngresoDesde
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de ingreso desde (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: fechaIngresoHasta
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de ingreso hasta (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: Esta_Preniada
+ *         schema:
+ *           type: string
+ *           enum: ["0", "1", "true", "false"]
+ *         description: Filtrar por estado de preñez (1=true, 0=false)
+ *       - in: query
+ *         name: ID_Estado
+ *         schema:
+ *           type: integer
+ *         description: Filtrar por estado del animal
+ *       - in: query
+ *         name: fechaVentaDesde
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de venta desde (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: fechaVentaHasta
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de venta hasta (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: Tipo_Venta
+ *         schema:
+ *           type: string
+ *         description: Filtrar por tipo de venta
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Número de página (requiere limit para activar paginación)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Número de registros por página (requiere page para activar paginación, máximo 100)
  *     responses:
  *       200:
  *         description: Lista de animales con detalles obtenida exitosamente
@@ -137,9 +197,39 @@ router.get('/', animalsController.getAll);
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Animal'
+ *                     $ref: '#/components/schemas/AnimalWithDetails'
  *                 count:
  *                   type: integer
+ *                   description: Número de registros en la página actual
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                       description: Página actual
+ *                     totalPages:
+ *                       type: integer
+ *                       description: Total de páginas
+ *                     totalCount:
+ *                       type: integer
+ *                       description: Total de registros
+ *                     limit:
+ *                       type: integer
+ *                       description: Registros por página
+ *                     hasNextPage:
+ *                       type: boolean
+ *                       description: Si hay página siguiente
+ *                     hasPrevPage:
+ *                       type: boolean
+ *                       description: Si hay página anterior
+ *                     nextPage:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: Número de página siguiente
+ *                     prevPage:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: Número de página anterior
  *       500:
  *         description: Error interno del servidor
  *         content:
