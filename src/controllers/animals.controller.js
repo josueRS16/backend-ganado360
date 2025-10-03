@@ -109,12 +109,18 @@ class AnimalsController {
       }
       res.status(201).json({ data: animal });
     } catch (error) {
-      
+      // Manejo detallado de errores de SQL
       if (error.code === 'ER_NO_REFERENCED_ROW_2') {
         return res.status(409).json({ error: 'La categoría especificada no existe' });
       }
-      
-      res.status(500).json({ error: 'Error interno del servidor' });
+      if (error.code === 'ER_DUP_ENTRY') {
+        return res.status(409).json({ error: 'Ya existe un animal con un dato único duplicado (por ejemplo, nombre o identificador).', sqlMessage: error.sqlMessage });
+      }
+      // Otros errores de conflicto
+      if (error.code) {
+        return res.status(409).json({ error: 'Conflicto en la base de datos', code: error.code, sqlMessage: error.sqlMessage });
+      }
+      res.status(500).json({ error: 'Error interno del servidor', message: error.message });
     }
   }
 

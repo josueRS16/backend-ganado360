@@ -50,11 +50,14 @@ class AnimalsRepository {
       sql += ' AND ' + conditions.join(' AND ');
     }
     sql += ' ORDER BY a.Nombre';
-    if (filters.limit !== null && filters.limit !== undefined) {
-      const limit = filters.limit;
-      const offset = filters.offset || 0;
-      sql += ` LIMIT ${limit} OFFSET ${offset}`;
-    }
+      if (filters.limit !== null && filters.limit !== undefined) {
+        const limit = Number(filters.limit);
+        const offset = Number(filters.offset) || 0;
+        // Solo interpolar si son números válidos
+        if (!isNaN(limit) && !isNaN(offset)) {
+          sql += ` LIMIT ${limit} OFFSET ${offset}`;
+        }
+      }
     return await execute(sql, params);
   }
 
@@ -216,5 +219,10 @@ class AnimalsRepository {
     `);
   }
 }
+
+// Solución para el warning de React en selects controlados:
+// Busca en tu frontend los <select value={valor}> y reemplaza por:
+// <select value={valor ?? ""}> ... </select>
+// Esto asegura que nunca sea null.
 
 module.exports = new AnimalsRepository();
