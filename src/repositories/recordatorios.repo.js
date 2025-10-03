@@ -8,15 +8,26 @@ class RecordatoriosRepository {
     );
     return result.affectedRows > 0;
   }
-  // Elimina todos los recordatorios asociados a un evento veterinario (ID_Evento)
+  // Elimina todos los recordatorios asociados a un evento veterinario
   async deleteByEventoId(eventoId) {
-    // Buscar todos los recordatorios cuyo evento veterinario sea el dado
-    // Asumimos que la relación es: Recordatorio tiene un campo ID_Evento (si no, ajustar la lógica)
-    // Si no existe el campo, buscar por lógica de negocio (por ejemplo, por fecha y animal)
-    // Aquí se asume que Recordatorio tiene un campo ID_Evento
+    // First get the historial event details to find related recordatorios
+    const evento = await getOne(`
+      SELECT hv.*, a.Nombre as AnimalNombre 
+      FROM Historial_Veterinario hv 
+      JOIN Animal a ON hv.ID_Animal = a.ID_Animal
+      WHERE hv.ID_Evento = ?
+    `, [eventoId]);
+    
+    if (!evento) {
+      return false;
+    }
+    
+    // Delete recordatorios that match the event pattern
+    // Recordatorios are created with title "Evento veterinario: {Tipo_Evento}"
+    const titulo = `Evento veterinario: ${evento.Tipo_Evento}`;
     const result = await executeNonQuery(
-      'DELETE FROM Recordatorio WHERE ID_Evento = ?',
-      [eventoId]
+      'DELETE FROM Recordatorio WHERE ID_Animal = ? AND Titulo = ? AND Fecha_Recordatorio = ?',
+      [evento.ID_Animal, titulo, evento.Proxima_Fecha]
     );
     return result.affectedRows > 0;
   }
