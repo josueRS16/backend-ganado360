@@ -18,8 +18,11 @@ class HistorialRepository {
     
     // Add pagination if limit and offset are provided
     if (options.limit && options.offset !== undefined) {
-      sql += ` LIMIT ? OFFSET ?`;
-      params.push(options.limit, options.offset);
+      // Some MySQL drivers do not accept placeholders for LIMIT/OFFSET.
+      // Interpolate integers safely after coercion to Number to avoid SQL injection.
+      const limit = Number(options.limit) || 0;
+      const offset = Number(options.offset) || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
     }
     
     return await execute(sql, params);
