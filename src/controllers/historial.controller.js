@@ -4,25 +4,59 @@ const historialRepository = require('../repositories/historial.repo');
 class HistorialController {
   async getAll(req, res) {
     try {
-      // Paginación: page y limit por query params
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const offset = (page - 1) * limit;
+      // Check if pagination parameters are provided (both page AND limit must be provided)
+      const hasPagination = req.query.page !== undefined && req.query.limit !== undefined;
+      
+      // Parse pagination parameters only if provided
+      const page = hasPagination ? (parseInt(req.query.page) || 1) : 1;
+      const limit = hasPagination ? (parseInt(req.query.limit) || 5) : null;
+      const offset = hasPagination ? (page - 1) * limit : null;
 
-      const [historial, total] = await Promise.all([
-        historialRepository.findAll({ limit, offset }),
-        historialRepository.count()
+      const filters = {
+        ID_Animal: req.query.ID_Animal,
+        Tipo_Evento: req.query.Tipo_Evento,
+        fechaDesde: req.query.fechaDesde,
+        fechaHasta: req.query.fechaHasta,
+        Hecho_Por: req.query.Hecho_Por
+      };
+
+      // Add pagination parameters only if pagination is requested
+      if (hasPagination) {
+        filters.limit = limit;
+        filters.offset = offset;
+      }
+      
+      // Get historial and total count
+      const [historial, totalCount] = await Promise.all([
+        historialRepository.findAll(filters),
+        historialRepository.count(filters)
       ]);
 
-      res.json({
-        data: historial,
-        pagination: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit)
-        }
-      });
+      // Prepare response
+      const response = { 
+        data: historial, 
+        count: historial.length
+      };
+
+      // Add pagination metadata only if pagination was requested
+      if (hasPagination) {
+        const totalPages = Math.ceil(totalCount / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        response.pagination = {
+          currentPage: page,
+          totalPages: totalPages,
+          totalCount: totalCount,
+          limit: limit,
+          hasNextPage: hasNextPage,
+          hasPrevPage: hasPrevPage,
+          nextPage: hasNextPage ? page + 1 : null,
+          prevPage: hasPrevPage ? page - 1 : null
+        };
+      }
+
+      res.json(response);
     } catch (error) {
       console.error('Error en getAll historial:', error);
       res.status(500).json({ error: 'Error interno del servidor' });

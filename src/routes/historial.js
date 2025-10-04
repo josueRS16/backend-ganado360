@@ -16,6 +16,47 @@ const router = express.Router();
  *   get:
  *     summary: Obtener todo el historial
  *     tags: [Historial]
+ *     parameters:
+ *       - in: query
+ *         name: ID_Animal
+ *         schema:
+ *           type: integer
+ *         description: Filtrar por ID del animal
+ *       - in: query
+ *         name: Tipo_Evento
+ *         schema:
+ *           type: string
+ *         description: Filtrar por tipo de evento (búsqueda parcial)
+ *       - in: query
+ *         name: fechaDesde
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Fecha de aplicación desde (formato YYYY-MM-DD HH:mm:ss)
+ *       - in: query
+ *         name: fechaHasta
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Fecha de aplicación hasta (formato YYYY-MM-DD HH:mm:ss)
+ *       - in: query
+ *         name: Hecho_Por
+ *         schema:
+ *           type: integer
+ *         description: Filtrar por ID del usuario que realizó el evento
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Número de página (requiere limit para activar paginación)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Número de registros por página (requiere page para activar paginación, máximo 100)
  *     responses:
  *       200:
  *         description: Lista del historial obtenida exitosamente
@@ -30,6 +71,36 @@ const router = express.Router();
  *                     $ref: '#/components/schemas/Historial'
  *                 count:
  *                   type: integer
+ *                   description: Número de registros en la página actual
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                       description: Página actual
+ *                     totalPages:
+ *                       type: integer
+ *                       description: Total de páginas
+ *                     totalCount:
+ *                       type: integer
+ *                       description: Total de registros
+ *                     limit:
+ *                       type: integer
+ *                       description: Registros por página
+ *                     hasNextPage:
+ *                       type: boolean
+ *                       description: Si hay página siguiente
+ *                     hasPrevPage:
+ *                       type: boolean
+ *                       description: Si hay página anterior
+ *                     nextPage:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: Número de página siguiente
+ *                     prevPage:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: Número de página anterior
  *       500:
  *         description: Error interno del servidor
  *         content:
