@@ -16,6 +16,47 @@ const router = express.Router();
  *   get:
  *     summary: Obtener todas las ventas
  *     tags: [Ventas]
+ *     parameters:
+ *       - in: query
+ *         name: ID_Animal
+ *         schema:
+ *           type: integer
+ *         description: Filtrar por ID del animal
+ *       - in: query
+ *         name: fechaDesde
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de venta desde (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: fechaHasta
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de venta hasta (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: Tipo_Venta
+ *         schema:
+ *           type: string
+ *         description: Filtrar por tipo de venta
+ *       - in: query
+ *         name: Comprador
+ *         schema:
+ *           type: string
+ *         description: Filtrar por nombre del comprador (búsqueda parcial)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Número de página (requiere limit para activar paginación)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Número de registros por página (requiere page para activar paginación, máximo 100)
  *     responses:
  *       200:
  *         description: Lista de ventas obtenida exitosamente
@@ -30,6 +71,36 @@ const router = express.Router();
  *                     $ref: '#/components/schemas/Venta'
  *                 count:
  *                   type: integer
+ *                   description: Número de registros en la página actual
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                       description: Página actual
+ *                     totalPages:
+ *                       type: integer
+ *                       description: Total de páginas
+ *                     totalCount:
+ *                       type: integer
+ *                       description: Total de registros
+ *                     limit:
+ *                       type: integer
+ *                       description: Registros por página
+ *                     hasNextPage:
+ *                       type: boolean
+ *                       description: Si hay página siguiente
+ *                     hasPrevPage:
+ *                       type: boolean
+ *                       description: Si hay página anterior
+ *                     nextPage:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: Número de página siguiente
+ *                     prevPage:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: Número de página anterior
  *       500:
  *         description: Error interno del servidor
  *         content:
