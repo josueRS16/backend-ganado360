@@ -28,13 +28,74 @@ class VentasRepository {
       params.push(filters.fechaHasta);
     }
     
+    if (filters.Tipo_Venta) {
+      conditions.push('v.Tipo_Venta = ?');
+      params.push(filters.Tipo_Venta);
+    }
+    
+    if (filters.Comprador) {
+      conditions.push('v.Comprador LIKE ?');
+      params.push(`%${filters.Comprador}%`);
+    }
+    
     if (conditions.length > 0) {
       sql += ' WHERE ' + conditions.join(' AND ');
     }
     
     sql += ' ORDER BY v.Fecha_Venta DESC';
     
+    // Add pagination only if limit is provided
+    if (filters.limit !== null && filters.limit !== undefined) {
+      const limit = filters.limit;
+      const offset = filters.offset || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
+    
     return await execute(sql, params);
+  }
+
+  async count(filters = {}) {
+    let sql = `
+      SELECT COUNT(*) as total
+      FROM Venta v 
+      JOIN Animal a ON v.ID_Animal = a.ID_Animal
+      LEFT JOIN Usuario u ON v.Registrado_Por = u.ID_Usuario
+    `;
+    
+    const params = [];
+    const conditions = [];
+    
+    if (filters.ID_Animal) {
+      conditions.push('v.ID_Animal = ?');
+      params.push(filters.ID_Animal);
+    }
+    
+    if (filters.fechaDesde) {
+      conditions.push('v.Fecha_Venta >= ?');
+      params.push(filters.fechaDesde);
+    }
+    
+    if (filters.fechaHasta) {
+      conditions.push('v.Fecha_Venta <= ?');
+      params.push(filters.fechaHasta);
+    }
+    
+    if (filters.Tipo_Venta) {
+      conditions.push('v.Tipo_Venta = ?');
+      params.push(filters.Tipo_Venta);
+    }
+    
+    if (filters.Comprador) {
+      conditions.push('v.Comprador LIKE ?');
+      params.push(`%${filters.Comprador}%`);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const result = await execute(sql, params);
+    return parseInt(result[0].total);
   }
 
   async findById(id) {
