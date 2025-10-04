@@ -24,8 +24,14 @@ class HistorialController {
         }
       });
     } catch (error) {
+      // Mostrar el error SQL exacto en el log
       console.error('Error en getAll historial:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
+      // En desarrollo, mostrar el mensaje SQL exacto en la respuesta
+      const isDev = process.env.NODE_ENV !== 'production';
+      res.status(500).json({
+        error: 'Error interno del servidor',
+        details: isDev ? (error.sqlMessage || error.message || error.toString()) : undefined
+      });
     }
   }
 

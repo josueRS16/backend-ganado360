@@ -13,16 +13,13 @@ class HistorialRepository {
       LEFT JOIN Usuario u ON hv.Hecho_Por = u.ID_Usuario
       ORDER BY hv.Fecha_Aplicacion DESC
     `;
-    
-    const params = [];
-    
-    // Add pagination if limit and offset are provided
-    if (options.limit && options.offset !== undefined) {
-      sql += ` LIMIT ? OFFSET ?`;
-      params.push(options.limit, options.offset);
+
+    // Solo agregar LIMIT/OFFSET si ambos son números válidos
+    if (Number.isInteger(options.limit) && Number.isInteger(options.offset)) {
+      sql += ` LIMIT ${options.limit} OFFSET ${options.offset}`;
     }
-    
-    return await execute(sql, params);
+
+    return await execute(sql);
   }
 
   async findById(id) {
