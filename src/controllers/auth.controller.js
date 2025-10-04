@@ -76,3 +76,4 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor.' });
   }
 };
+// NOTE: password-reset functionality was removed to restore previous behavior.
