@@ -4,16 +4,62 @@ const ventasRepository = require('../repositories/ventas.repo');
 class VentasController {
   async getAll(req, res) {
     try {
+      // Check if pagination parameters are provided (both page AND limit must be provided)
+      const hasPagination = req.query.page !== undefined && req.query.limit !== undefined;
+      
+      // Parse pagination parameters only if provided
+      const page = hasPagination ? (parseInt(req.query.page) || 1) : 1;
+      const limit = hasPagination ? (parseInt(req.query.limit) || 5) : null;
+      const offset = hasPagination ? (page - 1) * limit : null;
+
       const filters = {
         ID_Animal: req.query.ID_Animal,
         fechaDesde: req.query.fechaDesde,
-        fechaHasta: req.query.fechaHasta
+        fechaHasta: req.query.fechaHasta,
+        Tipo_Venta: req.query.Tipo_Venta,
+        Comprador: req.query.Comprador
       };
-      const ventas = await ventasRepository.findAll(filters);
-      res.json({ data: ventas, count: ventas.length });
+
+      // Add pagination parameters only if pagination is requested
+      if (hasPagination) {
+        filters.limit = limit;
+        filters.offset = offset;
+      }
+      
+      // Get ventas and total count
+      const [ventas, totalCount] = await Promise.all([
+        ventasRepository.findAll(filters),
+        ventasRepository.count(filters)
+      ]);
+
+      // Prepare response
+      const response = { 
+        data: ventas, 
+        count: ventas.length
+      };
+
+      // Add pagination metadata only if pagination was requested
+      if (hasPagination) {
+        const totalPages = Math.ceil(totalCount / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        response.pagination = {
+          currentPage: page,
+          totalPages: totalPages,
+          totalCount: totalCount,
+          limit: limit,
+          hasNextPage: hasNextPage,
+          hasPrevPage: hasPrevPage,
+          nextPage: hasNextPage ? page + 1 : null,
+          prevPage: hasPrevPage ? page - 1 : null
+        };
+      }
+
+      res.json(response);
     } catch (error) {
       console.error('Error en getAll ventas:', error);
-      res.status(500).json({ message: 'Error interno del servidor' });
+      res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
 
