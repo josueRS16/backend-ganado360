@@ -1,0 +1,9 @@
+CREATE TABLE PasswordReset (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Email VARCHAR(255) NOT NULL,
+    Code VARCHAR(6) NOT NULL,
+    ExpiresAt DATETIME NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_email ON PasswordReset (Email);

@@ -1,4 +1,3 @@
-
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const pool = require('../db/pool');
@@ -76,4 +75,86 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor.' });
   }
 };
-// NOTE: password-reset functionality was removed to restore previous behavior.
+
+exports.forgotPassword = async (req, res) => {
+  const { correo } = req.body;
+  if (!correo) {
+    return res.status(400).json({ message: 'Correo es requerido.' });
+  }
+
+  try {
+    const [user] = await pool.pool.query('SELECT * FROM Usuario WHERE Correo = ?', [correo]);
+    if (user.length === 0) {
+      return res.status(404).json({ message: 'Correo no encontrado.' });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString(); // Código de 6 dígitos
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Expira en 15 minutos
+
+    await pool.pool.query(
+      'INSERT INTO PasswordReset (Email, Code, ExpiresAt) VALUES (?, ?, ?)',
+      [correo, code, expiresAt]
+    );
+
+    // En lugar de enviar el correo, devolvemos el código directamente
+    res.status(200).json({ message: 'Código de verificación generado.', code });
+  } catch (err) {
+    console.error('Error en forgotPassword:', err);
+    res.status(500).json({ message: 'Error en el servidor.' });
+  }
+};
+
+exports.verifyCode = async (req, res) => {
+  const { correo, code } = req.body;
+  if (!correo || !code) {
+    return res.status(400).json({ message: 'Correo y código son requeridos.' });
+  }
+
+  try {
+    const [result] = await pool.pool.query(
+      'SELECT * FROM PasswordReset WHERE Email = ? AND Code = ? AND ExpiresAt > NOW()',
+      [correo, code]
+    );
+
+    if (result.length === 0) {
+      return res.status(400).json({ message: 'Código inválido o expirado.' });
+    }
+
+    res.status(200).json({ message: 'Código verificado correctamente.' });
+  } catch (err) {
+    console.error('Error en verifyCode:', err);
+    res.status(500).json({ message: 'Error en el servidor.' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { correo, code, newPassword } = req.body;
+  if (!correo || !code || !newPassword) {
+    return res.status(400).json({ message: 'Correo, código y nueva contraseña son requeridos.' });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
+  }
+
+  try {
+    const [result] = await pool.pool.query(
+      'SELECT * FROM PasswordReset WHERE Email = ? AND Code = ? AND ExpiresAt > NOW()',
+      [correo, code]
+    );
+
+    if (result.length === 0) {
+      return res.status(400).json({ message: 'Código inválido o expirado.' });
+    }
+
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    await pool.pool.query('UPDATE Usuario SET Contraseña = ? WHERE Correo = ?', [hashedPassword, correo]);
+    await pool.pool.query('DELETE FROM PasswordReset WHERE Email = ?', [correo]);
+
+    res.status(200).json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (err) {
+    console.error('Error en resetPassword:', err);
+    res.status(500).json({ message: 'Error en el servidor.' });
+  }
+};
