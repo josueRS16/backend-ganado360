@@ -1,33 +1,101 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
 
 class HistorialRepository {
-  async count() {
-    const result = await execute('SELECT COUNT(*) as total FROM Historial_Veterinario');
-    return result[0]?.total || 0;
+  async count(filters = {}) {
+    let sql = `
+      SELECT COUNT(*) as total 
+      FROM Historial_Veterinario hv 
+      JOIN Animal a ON hv.ID_Animal = a.ID_Animal
+      LEFT JOIN Usuario u ON hv.Hecho_Por = u.ID_Usuario
+    `;
+    
+    const params = [];
+    const conditions = [];
+    
+    if (filters.ID_Animal) {
+      conditions.push('hv.ID_Animal = ?');
+      params.push(filters.ID_Animal);
+    }
+    
+    if (filters.Tipo_Evento) {
+      conditions.push('hv.Tipo_Evento LIKE ?');
+      params.push(`%${filters.Tipo_Evento}%`);
+    }
+    
+    if (filters.fechaDesde) {
+      conditions.push('hv.Fecha_Aplicacion >= ?');
+      params.push(filters.fechaDesde);
+    }
+    
+    if (filters.fechaHasta) {
+      conditions.push('hv.Fecha_Aplicacion <= ?');
+      params.push(filters.fechaHasta);
+    }
+    
+    if (filters.Hecho_Por) {
+      conditions.push('hv.Hecho_Por = ?');
+      params.push(filters.Hecho_Por);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const result = await execute(sql, params);
+    return parseInt(result[0].total);
   }
-  async findAll(options = {}) {
+
+  async findAll(filters = {}) {
     let sql = `
       SELECT hv.*, a.Nombre as AnimalNombre, u.Nombre as UsuarioNombre 
       FROM Historial_Veterinario hv 
       JOIN Animal a ON hv.ID_Animal = a.ID_Animal
       LEFT JOIN Usuario u ON hv.Hecho_Por = u.ID_Usuario
-      ORDER BY hv.Fecha_Aplicacion DESC
     `;
     
     const params = [];
+    const conditions = [];
     
-    // Add pagination if limit and offset are provided
-    if (options.limit && options.offset !== undefined) {
-      // Some MySQL drivers do not accept placeholders for LIMIT/OFFSET.
-      // Interpolate integers safely after coercion to Number to avoid SQL injection.
-      const limit = Number(options.limit) || 0;
-      const offset = Number(options.offset) || 0;
-      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    if (filters.ID_Animal) {
+      conditions.push('hv.ID_Animal = ?');
+      params.push(filters.ID_Animal);
     }
     
+    if (filters.Tipo_Evento) {
+      conditions.push('hv.Tipo_Evento LIKE ?');
+      params.push(`%${filters.Tipo_Evento}%`);
+    }
+    
+    if (filters.fechaDesde) {
+      conditions.push('hv.Fecha_Aplicacion >= ?');
+      params.push(filters.fechaDesde);
+    }
+    
+    if (filters.fechaHasta) {
+      conditions.push('hv.Fecha_Aplicacion <= ?');
+      params.push(filters.fechaHasta);
+    }
+    
+    if (filters.Hecho_Por) {
+      conditions.push('hv.Hecho_Por = ?');
+      params.push(filters.Hecho_Por);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    sql += ' ORDER BY hv.Fecha_Aplicacion DESC';
+    
+    // Add pagination only if limit is provided
+    if (filters.limit !== null && filters.limit !== undefined) {
+      const limit = filters.limit;
+      const offset = filters.offset || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
     return await execute(sql, params);
   }
-
+            
   async findById(id) {
     return await getOne(`
       SELECT hv.*, a.Nombre as AnimalNombre, u.Nombre as UsuarioNombre 
