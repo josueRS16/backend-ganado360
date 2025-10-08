@@ -58,7 +58,12 @@ class HistorialController {
 
       res.json(response);
     } catch (error) {
-      console.error('Error en getAll historial:', error);
+      // Log detallado para ayudar a diagnosticar errores de BD/SQL
+      console.error('Error en getAll historial:', error && error.message ? error.message : error);
+      if (process.env.NODE_ENV === 'development') {
+        // In development show stack for debugging
+        return res.status(500).json({ error: 'Error interno del servidor', details: error.stack || error });
+      }
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }

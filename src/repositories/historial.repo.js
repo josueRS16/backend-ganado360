@@ -93,10 +93,9 @@ class HistorialRepository {
       const offset = filters.offset || 0;
       sql += ` LIMIT ${limit} OFFSET ${offset}`;
     }
-    
     return await execute(sql, params);
   }
-
+            
   async findById(id) {
     return await getOne(`
       SELECT hv.*, a.Nombre as AnimalNombre, u.Nombre as UsuarioNombre 
