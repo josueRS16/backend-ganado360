@@ -5,12 +5,12 @@ const pool = mysql.createPool({
   host: process.env.MYSQL_HOST || 'localhost',
   port: process.env.MYSQL_PORT || 3306,
   user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE || 'GanadoDB',
+  password: process.env.MYSQL_PASSWORD || '09082001',
+  database: process.env.MYSQL_DATABASE || 'ganadodb',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  acquireTimeout: 60000,
+  // mysql2 warns about some connection options depending on version; keep connectTimeout
   connectTimeout: 60000
 });
 
