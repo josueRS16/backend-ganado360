@@ -16,8 +16,37 @@ router.post('/login', usuariosController.login);
  * @swagger
  * /usuarios:
  *   get:
- *     summary: Obtener todos los usuarios
+ *     summary: Obtener todos los usuarios con filtros y paginación opcional
  *     tags: [Usuarios]
+ *     parameters:
+ *       - in: query
+ *         name: Nombre
+ *         schema:
+ *           type: string
+ *         description: Filtrar por nombre del usuario (búsqueda parcial)
+ *       - in: query
+ *         name: Correo
+ *         schema:
+ *           type: string
+ *         description: Filtrar por correo del usuario (búsqueda parcial)
+ *       - in: query
+ *         name: RolNombre
+ *         schema:
+ *           type: string
+ *         description: Filtrar por nombre del rol asociado (búsqueda parcial)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Número de página (requiere limit)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Elementos por página (requiere page)
  *     responses:
  *       200:
  *         description: Lista de usuarios obtenida exitosamente
@@ -32,6 +61,29 @@ router.post('/login', usuariosController.login);
  *                     $ref: '#/components/schemas/Usuario'
  *                 count:
  *                   type: integer
+ *                   description: Número de elementos en la página actual
+ *                 pagination:
+ *                   type: object
+ *                   description: Metadatos de paginación (solo si se proporcionan page y limit)
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalCount:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
+ *                     nextPage:
+ *                       type: integer
+ *                       nullable: true
+ *                     prevPage:
+ *                       type: integer
+ *                       nullable: true
  *       500:
  *         description: Error interno del servidor
  *         content:

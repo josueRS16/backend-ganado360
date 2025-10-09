@@ -1,8 +1,48 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
 
 class EstadosRepository {
-  async findAll() {
-    return await execute('SELECT * FROM Estado ORDER BY Nombre');
+  async count(filters = {}) {
+    let sql = 'SELECT COUNT(*) as total FROM Estado';
+    const params = [];
+    const conditions = [];
+    
+    if (filters.Nombre) {
+      conditions.push('Nombre LIKE ?');
+      params.push(`%${filters.Nombre}%`);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const result = await execute(sql, params);
+    return parseInt(result[0].total);
+  }
+
+  async findAll(filters = {}) {
+    let sql = 'SELECT * FROM Estado';
+    const params = [];
+    const conditions = [];
+    
+    if (filters.Nombre) {
+      conditions.push('Nombre LIKE ?');
+      params.push(`%${filters.Nombre}%`);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    sql += ' ORDER BY Nombre';
+    
+    // Add pagination only if limit is provided
+    if (filters.limit !== null && filters.limit !== undefined) {
+      const limit = filters.limit;
+      const offset = filters.offset || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
+    
+    return await execute(sql, params);
   }
 
   async findById(id) {

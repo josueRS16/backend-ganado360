@@ -3,8 +3,55 @@ const rolesRepository = require('../repositories/roles.repo');
 class RolesController {
   async getAll(req, res) {
     try {
-      const roles = await rolesRepository.findAll();
-      res.json({ data: roles, count: roles.length });
+      // Check if pagination parameters are provided (both page AND limit must be provided)
+      const hasPagination = req.query.page !== undefined && req.query.limit !== undefined;
+      
+      // Parse pagination parameters only if provided
+      const page = hasPagination ? (parseInt(req.query.page) || 1) : 1;
+      const limit = hasPagination ? (parseInt(req.query.limit) || 5) : null;
+      const offset = hasPagination ? (page - 1) * limit : null;
+
+      const filters = {
+        Nombre: req.query.Nombre
+      };
+
+      // Add pagination parameters only if pagination is requested
+      if (hasPagination) {
+        filters.limit = limit;
+        filters.offset = offset;
+      }
+      
+      // Get roles and total count
+      const [roles, totalCount] = await Promise.all([
+        rolesRepository.findAll(filters),
+        rolesRepository.count(filters)
+      ]);
+
+      // Prepare response
+      const response = { 
+        data: roles, 
+        count: roles.length
+      };
+
+      // Add pagination metadata only if pagination was requested
+      if (hasPagination) {
+        const totalPages = Math.ceil(totalCount / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        response.pagination = {
+          currentPage: page,
+          totalPages: totalPages,
+          totalCount: totalCount,
+          limit: limit,
+          hasNextPage: hasNextPage,
+          hasPrevPage: hasPrevPage,
+          nextPage: hasNextPage ? page + 1 : null,
+          prevPage: hasPrevPage ? page - 1 : null
+        };
+      }
+
+      res.json(response);
     } catch (error) {
       console.error('Error en getAll roles:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
