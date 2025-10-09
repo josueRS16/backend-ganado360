@@ -12,13 +12,76 @@ class UsuariosRepository {
   async login({ Correo, Contraseña }) {
     return await getOne('SELECT * FROM Usuario WHERE Correo = ? AND Contraseña = ?', [Correo, Contraseña]);
   }
-  async findAll() {
-    return await execute(`
+  async count(filters = {}) {
+    let sql = `
+      SELECT COUNT(*) as total 
+      FROM Usuario u 
+      JOIN Rol r ON u.RolID = r.RolID
+    `;
+    const params = [];
+    const conditions = [];
+    
+    if (filters.Nombre) {
+      conditions.push('u.Nombre LIKE ?');
+      params.push(`%${filters.Nombre}%`);
+    }
+    
+    if (filters.Correo) {
+      conditions.push('u.Correo LIKE ?');
+      params.push(`%${filters.Correo}%`);
+    }
+    
+    if (filters.RolNombre) {
+      conditions.push('r.Nombre LIKE ?');
+      params.push(`%${filters.RolNombre}%`);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const result = await execute(sql, params);
+    return parseInt(result[0].total);
+  }
+
+  async findAll(filters = {}) {
+    let sql = `
       SELECT u.*, r.Nombre as RolNombre 
       FROM Usuario u 
-      JOIN Rol r ON u.RolID = r.RolID 
-      ORDER BY u.Nombre
-    `);
+      JOIN Rol r ON u.RolID = r.RolID
+    `;
+    const params = [];
+    const conditions = [];
+    
+    if (filters.Nombre) {
+      conditions.push('u.Nombre LIKE ?');
+      params.push(`%${filters.Nombre}%`);
+    }
+    
+    if (filters.Correo) {
+      conditions.push('u.Correo LIKE ?');
+      params.push(`%${filters.Correo}%`);
+    }
+    
+    if (filters.RolNombre) {
+      conditions.push('r.Nombre LIKE ?');
+      params.push(`%${filters.RolNombre}%`);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    sql += ' ORDER BY u.Nombre';
+    
+    // Add pagination only if limit is provided
+    if (filters.limit !== null && filters.limit !== undefined) {
+      const limit = filters.limit;
+      const offset = filters.offset || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
+    
+    return await execute(sql, params);
   }
 
   async findById(id) {

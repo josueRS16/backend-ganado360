@@ -14,8 +14,27 @@ const router = express.Router();
  * @swagger
  * /estados:
  *   get:
- *     summary: Obtener todos los estados
+ *     summary: Obtener todos los estados con filtros y paginación opcional
  *     tags: [Estados]
+ *     parameters:
+ *       - in: query
+ *         name: Nombre
+ *         schema:
+ *           type: string
+ *         description: Filtrar por nombre del estado (búsqueda parcial)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Número de página (requiere limit)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Elementos por página (requiere page)
  *     responses:
  *       200:
  *         description: Lista de estados obtenida exitosamente
@@ -30,6 +49,29 @@ const router = express.Router();
  *                     $ref: '#/components/schemas/Estado'
  *                 count:
  *                   type: integer
+ *                   description: Número de elementos en la página actual
+ *                 pagination:
+ *                   type: object
+ *                   description: Metadatos de paginación (solo si se proporcionan page y limit)
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalCount:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
+ *                     nextPage:
+ *                       type: integer
+ *                       nullable: true
+ *                     prevPage:
+ *                       type: integer
+ *                       nullable: true
  *       500:
  *         description: Error interno del servidor
  *         content:

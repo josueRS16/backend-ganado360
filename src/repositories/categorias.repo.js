@@ -1,8 +1,48 @@
 const { execute, executeNonQuery, getOne } = require('../db/pool');
 
 class CategoriasRepository {
-  async findAll() {
-    return await execute('SELECT * FROM Categoria ORDER BY Tipo');
+  async count(filters = {}) {
+    let sql = 'SELECT COUNT(*) as total FROM Categoria';
+    const params = [];
+    const conditions = [];
+    
+    if (filters.Tipo) {
+      conditions.push('Tipo LIKE ?');
+      params.push(`%${filters.Tipo}%`);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const result = await execute(sql, params);
+    return parseInt(result[0].total);
+  }
+
+  async findAll(filters = {}) {
+    let sql = 'SELECT * FROM Categoria';
+    const params = [];
+    const conditions = [];
+    
+    if (filters.Tipo) {
+      conditions.push('Tipo LIKE ?');
+      params.push(`%${filters.Tipo}%`);
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    sql += ' ORDER BY Tipo';
+    
+    // Add pagination only if limit is provided
+    if (filters.limit !== null && filters.limit !== undefined) {
+      const limit = filters.limit;
+      const offset = filters.offset || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
+    
+    return await execute(sql, params);
   }
 
   async findById(id) {

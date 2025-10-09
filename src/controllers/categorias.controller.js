@@ -3,8 +3,55 @@ const categoriasRepository = require('../repositories/categorias.repo');
 class CategoriasController {
   async getAll(req, res) {
     try {
-      const categorias = await categoriasRepository.findAll();
-      res.json({ data: categorias, count: categorias.length });
+      // Check if pagination parameters are provided (both page AND limit must be provided)
+      const hasPagination = req.query.page !== undefined && req.query.limit !== undefined;
+      
+      // Parse pagination parameters only if provided
+      const page = hasPagination ? (parseInt(req.query.page) || 1) : 1;
+      const limit = hasPagination ? (parseInt(req.query.limit) || 5) : null;
+      const offset = hasPagination ? (page - 1) * limit : null;
+
+      const filters = {
+        Tipo: req.query.Tipo
+      };
+
+      // Add pagination parameters only if pagination is requested
+      if (hasPagination) {
+        filters.limit = limit;
+        filters.offset = offset;
+      }
+      
+      // Get categorias and total count
+      const [categorias, totalCount] = await Promise.all([
+        categoriasRepository.findAll(filters),
+        categoriasRepository.count(filters)
+      ]);
+
+      // Prepare response
+      const response = { 
+        data: categorias, 
+        count: categorias.length
+      };
+
+      // Add pagination metadata only if pagination was requested
+      if (hasPagination) {
+        const totalPages = Math.ceil(totalCount / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        response.pagination = {
+          currentPage: page,
+          totalPages: totalPages,
+          totalCount: totalCount,
+          limit: limit,
+          hasNextPage: hasNextPage,
+          hasPrevPage: hasPrevPage,
+          nextPage: hasNextPage ? page + 1 : null,
+          prevPage: hasPrevPage ? page - 1 : null
+        };
+      }
+
+      res.json(response);
     } catch (error) {
       console.error('Error en getAll categorias:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
