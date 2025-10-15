@@ -17,7 +17,8 @@ class VentasController {
         fechaDesde: req.query.fechaDesde,
         fechaHasta: req.query.fechaHasta,
         Tipo_Venta: req.query.Tipo_Venta,
-        Comprador: req.query.Comprador
+        Comprador: req.query.Comprador,
+        Numero_Factura: req.query.Numero_Factura
       };
 
       // Add pagination parameters only if pagination is requested
@@ -123,6 +124,51 @@ class VentasController {
       res.json({ deleted: true });
     } catch (error) {
       console.error('Error en delete venta:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
+
+  // Obtener factura por número
+  async getByNumeroFactura(req, res) {
+    try {
+      const { numero } = req.params;
+      const venta = await ventasRepository.findByNumeroFactura(numero);
+      if (!venta) {
+        return res.status(404).json({ message: 'Factura no encontrada' });
+      }
+      res.json({ data: venta });
+    } catch (error) {
+      console.error('Error en getByNumeroFactura:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
+
+  // Obtener datos completos para PDF
+  async getFacturaParaPDF(req, res) {
+    try {
+      const { id } = req.params;
+      const factura = await ventasRepository.getFacturaParaPDF(id);
+      if (!factura) {
+        return res.status(404).json({ message: 'Factura no encontrada' });
+      }
+      res.json({ data: factura });
+    } catch (error) {
+      console.error('Error en getFacturaParaPDF:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
+
+  // Obtener estadísticas de ventas
+  async getEstadisticas(req, res) {
+    try {
+      const filters = {
+        fechaDesde: req.query.fechaDesde,
+        fechaHasta: req.query.fechaHasta
+      };
+      const estadisticas = await ventasRepository.getEstadisticas(filters);
+      res.json({ data: estadisticas });
+    } catch (error) {
+      console.error('Error en getEstadisticas:', error);
       res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
