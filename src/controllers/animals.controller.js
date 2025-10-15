@@ -240,6 +240,7 @@ class AnimalsController {
 
       res.json(response);
     } catch (error) {
+      console.error('Error en getWithDetails:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   }

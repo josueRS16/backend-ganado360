@@ -210,7 +210,7 @@ class AnimalsRepository {
         c.Tipo as CategoriaTipo,
         v.ID_Venta,
         v.Fecha_Venta,
-        v.Precio,
+        v.Total,
         v.Comprador,
         v.Tipo_Venta,
         v.Registrado_Por,
