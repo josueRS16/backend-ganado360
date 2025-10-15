@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const pool = require('../db/pool');
+const axios = require('axios');
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
 exports.register = async (req, res) => {
@@ -30,11 +31,27 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { correo, password } = req.body;
-  if (!correo || !password) {
-    return res.status(400).json({ message: 'Correo y contraseña requeridos.' });
+  const { correo, password, captchaToken } = req.body;
+  if (!correo || !password || !captchaToken) {
+    return res.status(400).json({ message: 'Correo, contraseña y CAPTCHA requeridos.' });
   }
+
   try {
+    // Verificar el token de reCAPTCHA
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+    const response = await axios.post(verifyUrl, null, {
+      params: {
+        secret: secretKey,
+        response: captchaToken,
+      },
+    });
+
+    if (!response.data.success || response.data.score < 0.5) {
+      return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA.' });
+    }
+
+    // Continuar con la lógica de inicio de sesión
     const [user] = await pool.pool.query('SELECT * FROM Usuario WHERE Correo = ?', [correo]);
     if (user.length === 0) {
       return res.status(401).json({ message: 'Correo o contraseña incorrectos.' });
