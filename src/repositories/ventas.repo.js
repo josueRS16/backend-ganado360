@@ -170,56 +170,73 @@ class VentasRepository {
       Registrado_Por, 
       Observaciones 
     } = ventaData;
-    
+
     // Verificar si ya existe una venta para este animal
     const existing = await execute('SELECT ID_Venta FROM Venta WHERE ID_Animal = ?', [ID_Animal]);
     if (existing.length > 0) {
       throw new Error('Ya existe una venta para este animal');
     }
-    
+
     // Verificar el estado actual del animal (debe ser estado 12 = "viva")
     const estadoAnimal = await estadoAnimalRepo.findByAnimalId(ID_Animal); 
     if (!estadoAnimal) {
       throw new Error('El animal no tiene un estado asignado');
     }
-    
     if (estadoAnimal.ID_Estado !== 12) {
       throw new Error('Solo se pueden vender animales que estén en estado "viva"');
     }
-    
+
     // Iniciar transacción para asegurar atomicidad
     const { pool } = require('../db/pool');
     const connection = await pool.getConnection();
-    
+
     try {
       await connection.beginTransaction();
-      
-      // Crear la venta (los triggers calcularán IVA y Total automáticamente)
+
+      // Generar el número de factura en formato F-YYYYMM-XXXX
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      // Buscar el último consecutivo del mes actual
+      const [lastFactura] = await connection.execute(
+        `SELECT Numero_Factura FROM Venta WHERE Numero_Factura LIKE ? ORDER BY Numero_Factura DESC LIMIT 1`,
+        [`F-${year}${month}-%`]
+      );
+      let nextConsecutivo = 1;
+      if (lastFactura.length > 0 && lastFactura[0].Numero_Factura) {
+        const lastNum = lastFactura[0].Numero_Factura;
+        const match = lastNum.match(/F-\d{6}-(\d{4})/);
+        if (match) {
+          nextConsecutivo = parseInt(match[1], 10) + 1;
+        }
+      }
+      const numeroFactura = `F-${year}${month}-${String(nextConsecutivo).padStart(4, '0')}`;
+
+      // Crear la venta con el número de factura
       const [result] = await connection.execute(
         `INSERT INTO Venta (
           ID_Animal, Fecha_Venta, Tipo_Venta, Comprador, Vendedor, Metodo_Pago,
           Precio_Unitario, Cantidad, Subtotal, IVA_Porcentaje, 
-          Registrado_Por, Observaciones
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          Registrado_Por, Observaciones, Numero_Factura
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           ID_Animal, Fecha_Venta, Tipo_Venta, Comprador, Vendedor, Metodo_Pago,
           Precio_Unitario, Cantidad, Subtotal, IVA_Porcentaje,
-          Registrado_Por, Observaciones
+          Registrado_Por, Observaciones, numeroFactura
         ]
       );
-      
+
       // Actualizar el estado del animal a "vendida" (ID: 9)
       const [updateResult] = await connection.execute(
         'UPDATE Estado_Animal SET ID_Estado = ? WHERE ID_Animal = ?',
         [9, ID_Animal]
       );
-      
+
       if (updateResult.affectedRows === 0) {
         throw new Error('Error al actualizar el estado del animal a "vendida"');
       }
-      
+
       await connection.commit();
-      
       return await this.findById(result.insertId);
     } catch (error) {
       await connection.rollback();
