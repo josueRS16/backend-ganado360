@@ -1,7 +1,12 @@
 const express = require('express');
 const rolesController = require('../controllers/roles.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Solo Administrador puede gestionar roles
 
 /**
  * @swagger
@@ -79,7 +84,8 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', rolesController.getAll);
+// Solo Administrador puede ver roles
+router.get('/', authMiddleware, authorize(2), rolesController.getAll);
 
 /**
  * @swagger
@@ -117,7 +123,8 @@ router.get('/', rolesController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', rolesController.getById);
+// Solo Administrador puede ver un rol
+router.get('/:id', authMiddleware, authorize(2), rolesController.getById);
 
 /**
  * @swagger
@@ -157,7 +164,8 @@ router.get('/:id', rolesController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', rolesController.create);
+// Solo Administrador puede crear roles
+router.post('/', authMiddleware, authorize(2), rolesController.create);
 
 /**
  * @swagger
@@ -208,7 +216,8 @@ router.post('/', rolesController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', rolesController.update);
+// Solo Administrador puede actualizar roles
+router.put('/:id', authMiddleware, authorize(2), rolesController.update);
 
 /**
  * @swagger
@@ -252,6 +261,7 @@ router.put('/:id', rolesController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', rolesController.delete);
+// Solo Administrador puede eliminar roles
+router.delete('/:id', authMiddleware, authorize(2), rolesController.delete);
 
 module.exports = router;

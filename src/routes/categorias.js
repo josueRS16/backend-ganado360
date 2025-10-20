@@ -1,7 +1,12 @@
 const express = require('express');
 const categoriasController = require('../controllers/categorias.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Solo Administrador puede gestionar categorías
 
 /**
  * @swagger
@@ -79,7 +84,8 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', categoriasController.getAll);
+// Solo Administrador puede ver categorías
+router.get('/', authMiddleware, authorize(1,2), categoriasController.getAll);
 
 /**
  * @swagger
@@ -117,7 +123,8 @@ router.get('/', categoriasController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', categoriasController.getById);
+// Solo Administrador puede ver una categoría
+router.get('/:id', authMiddleware, authorize(2), categoriasController.getById);
 
 /**
  * @swagger
@@ -154,7 +161,8 @@ router.get('/:id', categoriasController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', categoriasController.create);
+// Solo Administrador puede crear categorías
+router.post('/', authMiddleware, authorize(2), categoriasController.create);
 
 /**
  * @swagger
@@ -202,7 +210,8 @@ router.post('/', categoriasController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', categoriasController.update);
+// Solo Administrador puede actualizar categorías
+router.put('/:id', authMiddleware, authorize(2), categoriasController.update);
 
 /**
  * @swagger
@@ -246,6 +255,7 @@ router.put('/:id', categoriasController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', categoriasController.delete);
+// Solo Administrador puede eliminar categorías
+router.delete('/:id', authMiddleware, authorize(2), categoriasController.delete);
 
 module.exports = router;

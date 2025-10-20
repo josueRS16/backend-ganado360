@@ -1,7 +1,13 @@
 const express = require('express');
 const historialController = require('../controllers/historial.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Veterinario puede: ver y gestionar historial veterinario
+// Administrador puede: todo
 
 /**
  * @swagger
@@ -108,7 +114,8 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', historialController.getAll);
+// Veterinario y Administrador pueden ver historial
+router.get('/', authMiddleware, authorize(1, 2), historialController.getAll);
 
 /**
  * @swagger
@@ -146,7 +153,8 @@ router.get('/', historialController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', historialController.getById);
+// Veterinario y Administrador pueden ver un evento del historial
+router.get('/:id', authMiddleware, authorize(1, 2), historialController.getById);
 
 /**
  * @swagger
@@ -209,7 +217,8 @@ router.get('/:id', historialController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', historialController.create);
+// Veterinario y Administrador pueden crear eventos del historial
+router.post('/', authMiddleware, authorize(1, 2), historialController.create);
 
 /**
  * @swagger
@@ -280,7 +289,8 @@ router.post('/', historialController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', historialController.update);
+// Veterinario y Administrador pueden actualizar eventos del historial
+router.put('/:id', authMiddleware, authorize(1, 2), historialController.update);
 
 /**
  * @swagger
@@ -318,6 +328,7 @@ router.put('/:id', historialController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', historialController.delete);
+// Veterinario y Administrador pueden eliminar eventos del historial
+router.delete('/:id', authMiddleware, authorize(1, 2), historialController.delete);
 
 module.exports = router;

@@ -86,7 +86,11 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Correo o contraseña incorrectos.' });
     }
     
-    const token = jwt.sign({ id: user[0].ID_Usuario, correo: user[0].Correo }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ 
+      id: user[0].ID_Usuario, 
+      correo: user[0].Correo,
+      rolID: user[0].RolID 
+    }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ token, nombre: user[0].Nombre, rol: user[0].RolID });
   } catch (err) {
     console.error('Error en login:', err);
@@ -173,6 +177,94 @@ exports.resetPassword = async (req, res) => {
     res.status(200).json({ message: 'Contraseña actualizada correctamente.' });
   } catch (err) {
     console.error('Error en resetPassword:', err);
+    res.status(500).json({ message: 'Error en el servidor.' });
+  }
+};
+
+// Obtener perfil del usuario autenticado
+exports.getProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const [user] = await pool.pool.query(
+      `SELECT u.ID_Usuario, u.Nombre, u.Correo, u.RolID, r.Nombre as RolNombre 
+       FROM Usuario u 
+       JOIN Rol r ON u.RolID = r.RolID 
+       WHERE u.ID_Usuario = ?`,
+      [userId]
+    );
+
+    if (user.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    // No devolver la contraseña
+    const { Contraseña, ...userProfile } = user[0];
+    
+    res.json({ data: userProfile });
+  } catch (err) {
+    console.error('Error en getProfile:', err);
+    res.status(500).json({ message: 'Error en el servidor.' });
+  }
+};
+
+// Actualizar perfil del usuario autenticado
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { Nombre, Correo, Contraseña } = req.body;
+
+    // Validaciones
+    if (!Nombre || !Correo) {
+      return res.status(400).json({ message: 'Nombre y correo son obligatorios.' });
+    }
+
+    // Verificar si el correo ya está en uso por otro usuario
+    const [existingUser] = await pool.pool.query(
+      'SELECT ID_Usuario FROM Usuario WHERE Correo = ? AND ID_Usuario != ?',
+      [Correo, userId]
+    );
+
+    if (existingUser.length > 0) {
+      return res.status(409).json({ message: 'El correo ya está en uso por otro usuario.' });
+    }
+
+    // Construir query de actualización
+    let updateQuery = 'UPDATE Usuario SET Nombre = ?, Correo = ?';
+    let params = [Nombre, Correo];
+
+    // Si se proporciona una nueva contraseña, hashearla y actualizarla
+    if (Contraseña && Contraseña.trim() !== '') {
+      if (Contraseña.length < 6) {
+        return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
+      }
+      
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(Contraseña, saltRounds);
+      updateQuery += ', Contraseña = ?';
+      params.push(hashedPassword);
+    }
+
+    updateQuery += ' WHERE ID_Usuario = ?';
+    params.push(userId);
+
+    await pool.pool.query(updateQuery, params);
+
+    // Obtener el usuario actualizado
+    const [updatedUser] = await pool.pool.query(
+      `SELECT u.ID_Usuario, u.Nombre, u.Correo, u.RolID, r.Nombre as RolNombre 
+       FROM Usuario u 
+       JOIN Rol r ON u.RolID = r.RolID 
+       WHERE u.ID_Usuario = ?`,
+      [userId]
+    );
+
+    res.json({ 
+      message: 'Perfil actualizado correctamente.',
+      data: updatedUser[0] 
+    });
+  } catch (err) {
+    console.error('Error en updateProfile:', err);
     res.status(500).json({ message: 'Error en el servidor.' });
   }
 };

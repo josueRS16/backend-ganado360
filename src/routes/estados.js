@@ -1,7 +1,12 @@
 const express = require('express');
 const estadosController = require('../controllers/estados.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Solo Administrador puede gestionar estados
 
 /**
  * @swagger
@@ -79,7 +84,8 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', estadosController.getAll);
+// Solo Administrador puede ver estados
+router.get('/', authMiddleware, authorize(1,2), estadosController.getAll);
 
 /**
  * @swagger
@@ -117,7 +123,8 @@ router.get('/', estadosController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', estadosController.getById);
+// Solo Administrador puede ver un estado
+router.get('/:id', authMiddleware, authorize(2), estadosController.getById);
 
 /**
  * @swagger
@@ -157,7 +164,8 @@ router.get('/:id', estadosController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', estadosController.create);
+// Solo Administrador puede crear estados
+router.post('/', authMiddleware, authorize(2), estadosController.create);
 
 /**
  * @swagger
@@ -208,7 +216,8 @@ router.post('/', estadosController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', estadosController.update);
+// Solo Administrador puede actualizar estados
+router.put('/:id', authMiddleware, authorize(2), estadosController.update);
 
 /**
  * @swagger
@@ -252,6 +261,7 @@ router.put('/:id', estadosController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', estadosController.delete);
+// Solo Administrador puede eliminar estados
+router.delete('/:id', authMiddleware, authorize(2), estadosController.delete);
 
 module.exports = router;
