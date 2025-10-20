@@ -1,7 +1,12 @@
 const express = require('express');
 const estadoAnimalController = require('../controllers/estadoAnimal.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Solo Administrador puede gestionar estado de animales
 
 /**
  * @swagger
@@ -37,7 +42,8 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', estadoAnimalController.getAll);
+// Solo Administrador puede ver estados de animales
+router.get('/', authMiddleware, authorize(2), estadoAnimalController.getAll);
 
 /**
  * @swagger
@@ -75,7 +81,8 @@ router.get('/', estadoAnimalController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', estadoAnimalController.getById);
+// Solo Administrador puede ver un estado de animal
+router.get('/:id', authMiddleware, authorize(2), estadoAnimalController.getById);
 
 /**
  * @swagger
@@ -126,7 +133,8 @@ router.get('/:id', estadoAnimalController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', estadoAnimalController.create);
+// Solo Administrador puede crear estados de animales
+router.post('/', authMiddleware, authorize(2), estadoAnimalController.create);
 
 /**
  * @swagger
@@ -187,7 +195,8 @@ router.post('/', estadoAnimalController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', estadoAnimalController.update);
+// Solo Administrador puede actualizar estados de animales
+router.put('/:id', authMiddleware, authorize(2), estadoAnimalController.update);
 
 /**
  * @swagger
@@ -225,6 +234,7 @@ router.put('/:id', estadoAnimalController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', estadoAnimalController.delete);
+// Solo Administrador puede eliminar estados de animales
+router.delete('/:id', authMiddleware, authorize(2), estadoAnimalController.delete);
 
 module.exports = router;

@@ -1,7 +1,12 @@
 const express = require('express');
 const ventasController = require('../controllers/ventas.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Solo Administrador puede gestionar ventas
 
 /**
  * @swagger
@@ -108,7 +113,8 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', ventasController.getAll);
+// Solo Administrador puede ver ventas
+router.get('/', authMiddleware, authorize(2), ventasController.getAll);
 
 /**
  * @swagger
@@ -146,7 +152,8 @@ router.get('/', ventasController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', ventasController.getById);
+// Solo Administrador puede ver una venta
+router.get('/:id', authMiddleware, authorize(2), ventasController.getById);
 
 /**
  * @swagger
@@ -246,7 +253,8 @@ router.get('/:id', ventasController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', ventasController.create);
+// Solo Administrador puede crear ventas
+router.post('/', authMiddleware, authorize(2), ventasController.create);
 
 /**
  * @swagger
@@ -320,7 +328,8 @@ router.post('/', ventasController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', ventasController.update);
+// Solo Administrador puede actualizar ventas
+router.put('/:id', authMiddleware, authorize(2), ventasController.update);
 
 /**
  * @swagger
@@ -358,7 +367,8 @@ router.put('/:id', ventasController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', ventasController.delete);
+// Solo Administrador puede eliminar ventas
+router.delete('/:id', authMiddleware, authorize(2), ventasController.delete);
 
 /**
  * @swagger
@@ -379,7 +389,8 @@ router.delete('/:id', ventasController.delete);
  *       404:
  *         description: Factura no encontrada
  */
-router.get('/factura/numero/:numero', ventasController.getByNumeroFactura);
+// Solo Administrador puede buscar factura por número
+router.get('/factura/numero/:numero', authMiddleware, authorize(2), ventasController.getByNumeroFactura);
 
 /**
  * @swagger
@@ -441,7 +452,8 @@ router.get('/factura/numero/:numero', ventasController.getByNumeroFactura);
  *       404:
  *         description: Factura no encontrada
  */
-router.get('/:id/factura-pdf', ventasController.getFacturaParaPDF);
+// Solo Administrador puede obtener datos para PDF de factura
+router.get('/:id/factura-pdf', authMiddleware, authorize(2), ventasController.getFacturaParaPDF);
 
 /**
  * @swagger
@@ -488,6 +500,7 @@ router.get('/:id/factura-pdf', ventasController.getFacturaParaPDF);
  *                     venta_maxima:
  *                       type: number
  */
-router.get('/estadisticas', ventasController.getEstadisticas);
+// Solo Administrador puede ver estadísticas de ventas
+router.get('/estadisticas', authMiddleware, authorize(2), ventasController.getEstadisticas);
 
 module.exports = router;
