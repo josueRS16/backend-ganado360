@@ -31,6 +31,7 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  console.log('Request received:', { correo: req.body.correo }); // Excluir contraseña y captchaToken
   const { correo, password, captchaToken } = req.body;
   if (!correo || !password || !captchaToken) {
     return res.status(400).json({ message: 'Correo, contraseña y CAPTCHA requeridos.' });
