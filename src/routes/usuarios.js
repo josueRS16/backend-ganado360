@@ -1,8 +1,15 @@
 
 const express = require('express');
 const usuariosController = require('../controllers/usuarios.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
+
 const router = express.Router();
-// Endpoint para login
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Solo Administrador puede gestionar usuarios
+
+// Endpoint para login (público, no requiere autenticación)
 router.post('/login', usuariosController.login);
 
 /**
@@ -91,7 +98,8 @@ router.post('/login', usuariosController.login);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', usuariosController.getAll);
+// Solo Administrador puede ver usuarios
+router.get('/', authMiddleware, authorize(1,2), usuariosController.getAll);
 
 /**
  * @swagger
@@ -129,7 +137,8 @@ router.get('/', usuariosController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', usuariosController.getById);
+// Solo Administrador puede ver un usuario
+router.get('/:id', authMiddleware, authorize(2), usuariosController.getById);
 
 /**
  * @swagger
@@ -185,7 +194,8 @@ router.get('/:id', usuariosController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', usuariosController.create);
+// Solo Administrador puede crear usuarios
+router.post('/', authMiddleware, authorize(2), usuariosController.create);
 
 /**
  * @swagger
@@ -249,7 +259,8 @@ router.post('/', usuariosController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', usuariosController.update);
+// Solo Administrador puede actualizar usuarios
+router.put('/:id', authMiddleware, authorize(2), usuariosController.update);
 
 /**
  * @swagger
@@ -293,6 +304,7 @@ router.put('/:id', usuariosController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', usuariosController.delete);
+// Solo Administrador puede eliminar usuarios
+router.delete('/:id', authMiddleware, authorize(2), usuariosController.delete);
 
 module.exports = router;

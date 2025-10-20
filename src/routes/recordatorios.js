@@ -1,11 +1,19 @@
 
 const express = require('express');
 const recordatoriosController = require('../controllers/recordatorios.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
+
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Veterinario puede: ver y gestionar recordatorios
+// Administrador puede: todo
+
 // Cambiar estado de recordatorio (hecho/pendiente)
-router.patch('/:id/estado', recordatoriosController.updateEstado);
+router.patch('/:id/estado', authMiddleware, authorize(1, 2), recordatoriosController.updateEstado);
 // Recordatorios automáticos (no guardados en BD)
-router.get('/auto', recordatoriosController.getAutomaticos);
+router.get('/auto', authMiddleware, authorize(1, 2), recordatoriosController.getAutomaticos);
 
 /**
  * @swagger
@@ -41,7 +49,8 @@ router.get('/auto', recordatoriosController.getAutomaticos);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', recordatoriosController.getAll);
+// Veterinario y Administrador pueden ver recordatorios
+router.get('/', authMiddleware, authorize(1, 2), recordatoriosController.getAll);
 
 /**
  * @swagger
@@ -79,7 +88,8 @@ router.get('/', recordatoriosController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', recordatoriosController.getById);
+// Veterinario y Administrador pueden ver un recordatorio
+router.get('/:id', authMiddleware, authorize(1, 2), recordatoriosController.getById);
 
 /**
  * @swagger
@@ -135,7 +145,8 @@ router.get('/:id', recordatoriosController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', recordatoriosController.create);
+// Veterinario y Administrador pueden crear recordatorios
+router.post('/', authMiddleware, authorize(1, 2), recordatoriosController.create);
 
 /**
  * @swagger
@@ -199,7 +210,8 @@ router.post('/', recordatoriosController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', recordatoriosController.update);
+// Veterinario y Administrador pueden actualizar recordatorios
+router.put('/:id', authMiddleware, authorize(1, 2), recordatoriosController.update);
 
 /**
  * @swagger
@@ -237,6 +249,7 @@ router.put('/:id', recordatoriosController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', recordatoriosController.delete);
+// Veterinario y Administrador pueden eliminar recordatorios
+router.delete('/:id', authMiddleware, authorize(1, 2), recordatoriosController.delete);
 
 module.exports = router;

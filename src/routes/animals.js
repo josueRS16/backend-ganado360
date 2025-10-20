@@ -3,8 +3,14 @@ const animalsController = require('../controllers/animals.controller');
 const recordatoriosController = require('../controllers/recordatorios.controller');
 const historialController = require('../controllers/historial.controller');
 const estadoAnimalController = require('../controllers/estadoAnimal.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Veterinario puede: ver animales, ver detalle, ver recordatorios, ver historial
+// Administrador puede: todo
 
 /**
  * @swagger
@@ -113,7 +119,8 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', animalsController.getAll);
+// Veterinario y Administrador pueden ver animales
+router.get('/', authMiddleware, authorize(1, 2), animalsController.getAll);
 
 /**
  * @swagger
@@ -237,7 +244,8 @@ router.get('/', animalsController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/con-detalle', animalsController.getWithDetails);
+// Veterinario y Administrador pueden ver animales con detalle
+router.get('/con-detalle', authMiddleware, authorize(1, 2), animalsController.getWithDetails);
 
 /**
  * @swagger
@@ -275,7 +283,8 @@ router.get('/con-detalle', animalsController.getWithDetails);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', animalsController.getById);
+// Veterinario y Administrador pueden ver detalle de un animal
+router.get('/:id', authMiddleware, authorize(1, 2), animalsController.getById);
 
 /**
  * @swagger
@@ -362,7 +371,8 @@ router.get('/:id', animalsController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', animalsController.create);
+// Solo Administrador puede crear animales
+router.post('/', authMiddleware, authorize(1,2), animalsController.create);
 
 /**
  * @swagger
@@ -452,7 +462,8 @@ router.post('/', animalsController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', animalsController.update);
+// Solo Administrador puede actualizar animales
+router.put('/:id', authMiddleware, authorize(1,2), animalsController.update);
 
 /**
  * @swagger
@@ -496,7 +507,8 @@ router.put('/:id', animalsController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', animalsController.delete);
+// Solo Administrador puede eliminar animales
+router.delete('/:id', authMiddleware, authorize(2), animalsController.delete);
 
 /**
  * @swagger
@@ -534,7 +546,8 @@ router.delete('/:id', animalsController.delete);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id/estado', estadoAnimalController.getByAnimalId);
+// Veterinario y Administrador pueden ver estado del animal
+router.get('/:id/estado', authMiddleware, authorize(1, 2), estadoAnimalController.getByAnimalId);
 
 /**
  * @swagger
@@ -574,7 +587,8 @@ router.get('/:id/estado', estadoAnimalController.getByAnimalId);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id/historial', historialController.getByAnimalId);
+// Veterinario y Administrador pueden ver historial del animal
+router.get('/:id/historial', authMiddleware, authorize(1, 2), historialController.getByAnimalId);
 
 /**
  * @swagger
@@ -614,6 +628,7 @@ router.get('/:id/historial', historialController.getByAnimalId);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id/recordatorios', recordatoriosController.getByAnimalId);
+// Veterinario y Administrador pueden ver recordatorios del animal
+router.get('/:id/recordatorios', authMiddleware, authorize(1, 2), recordatoriosController.getByAnimalId);
 
 module.exports = router;

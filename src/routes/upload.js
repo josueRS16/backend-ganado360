@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const uploadController = require('../controllers/upload.controller');
+const authMiddleware = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
+
+// Roles: 1 = Veterinario, 2 = Administrador
+// Solo Administrador puede subir y eliminar imágenes
 
 /**
  * @swagger
@@ -51,7 +56,8 @@ const uploadController = require('../controllers/upload.controller');
  *       500:
  *         description: Error interno del servidor
  */
-router.post('/image', uploadController.upload.single('image'), uploadController.uploadImage);
+// Solo Administrador puede subir imágenes
+router.post('/image', authMiddleware, authorize(2), uploadController.upload.single('image'), uploadController.uploadImage);
 
 /**
  * @swagger
@@ -104,6 +110,7 @@ router.post('/image', uploadController.upload.single('image'), uploadController.
  *                 message:
  *                   type: string
  */
-router.delete('/image/:filename', uploadController.deleteImage);
+// Solo Administrador puede eliminar imágenes
+router.delete('/image/:filename', authMiddleware, authorize(2), uploadController.deleteImage);
 
 module.exports = router;
