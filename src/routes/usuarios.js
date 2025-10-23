@@ -1,3 +1,4 @@
+
 const express = require('express');
 const usuariosController = require('../controllers/usuarios.controller');
 const authMiddleware = require('../middleware/auth');
@@ -193,8 +194,8 @@ router.get('/:id', authMiddleware, authorize(2), usuariosController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-// Eliminar el middleware de autenticación para permitir el registro sin token
-router.post('/', usuariosController.create);
+// Solo Administrador puede crear usuarios
+router.post('/', authMiddleware, authorize(2), usuariosController.create);
 
 /**
  * @swagger
