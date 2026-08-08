@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const pool = require('../db/pool');
-const axios = require('axios');
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
 exports.register = async (req, res) => {
@@ -31,40 +30,13 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  console.log('Request received:', { correo: req.body.correo }); // Excluir contraseña y captchaToken
-  const { correo, password, captchaToken } = req.body;
-  if (!correo || !password || !captchaToken) {
-    return res.status(400).json({ message: 'Correo, contraseña y CAPTCHA requeridos.' });
+  console.log('Request received:', { correo: req.body.correo });
+  const { correo, password } = req.body;
+  if (!correo || !password) {
+    return res.status(400).json({ message: 'Correo y contraseña requeridos.' });
   }
 
   try {
-    // Verificar el token de reCAPTCHA
-    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-    if (!secretKey) {
-      console.error('RECAPTCHA_SECRET_KEY no está configurada');
-      return res.status(500).json({ message: 'CAPTCHA no configurado en el servidor.' });
-    }
-
-    const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
-    const params = new URLSearchParams();
-    params.append('secret', secretKey);
-    params.append('response', captchaToken);
-    if (req.ip) params.append('remoteip', req.ip);
-
-    const { data: captchaResult } = await axios.post(verifyUrl, params, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    });
-
-    // v3 incluye score; v2 solo success
-    const scoreOk =
-      typeof captchaResult.score !== 'number' || captchaResult.score >= 0.5;
-
-    if (!captchaResult.success || !scoreOk) {
-      console.error('reCAPTCHA falló:', captchaResult['error-codes'] || captchaResult);
-      return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA.' });
-    }
-
-    // Continuar con la lógica de inicio de sesión
     const [user] = await pool.pool.query('SELECT * FROM Usuario WHERE Correo = ?', [correo]);
     if (user.length === 0) {
       return res.status(401).json({ message: 'Correo o contraseña incorrectos.' });
