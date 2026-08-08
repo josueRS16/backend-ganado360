@@ -15,11 +15,11 @@ const options = {
     },
     servers: [
       {
-        url: 'https://backend-ganado360.vercel.app/api',
+        url: 'https://backend-ganado360.vercel.app',
         description: 'Servidor de producción (Vercel)'
       },
       {
-        url: 'http://localhost:3000/api',
+        url: 'http://localhost:3000',
         description: 'Servidor de desarrollo'
       }
     ],
