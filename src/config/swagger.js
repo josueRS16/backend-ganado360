@@ -1,3 +1,4 @@
+const path = require('path');
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const options = {
@@ -13,6 +14,10 @@ const options = {
       }
     },
     servers: [
+      {
+        url: 'https://backend-ganado360.vercel.app/api',
+        description: 'Servidor de producción (Vercel)'
+      },
       {
         url: 'http://localhost:3000/api',
         description: 'Servidor de desarrollo'
@@ -466,7 +471,11 @@ const options = {
       }
     }
   },
-  apis: ['./src/routes/*.js', './src/controllers/*.js']
+  apis: [
+    path.join(__dirname, '../routes/*.js'),
+    path.join(__dirname, '../controllers/*.js'),
+    path.join(__dirname, '../../server.js')
+  ]
 };
 
 const specs = swaggerJSDoc(options);
