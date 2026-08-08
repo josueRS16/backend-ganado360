@@ -117,7 +117,7 @@ module.exports = app;
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Servidor corriendo en puerto ${PORT}`);
-    console.log(`API disponible en http://localhost:${PORT}/api`);
+    console.log(`API disponible en http://localhost:${PORT}`);
     console.log(`Documentación Swagger disponible en http://localhost:${PORT}/api-docs`);
   });
 }
