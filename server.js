@@ -72,7 +72,7 @@ app.get(['/api-docs', '/api-docs/'], (req, res) => {
 app.use('/uploads', express.static('uploads'));
 
 // API Routes
-app.use('/api', apiRoutes);
+app.use(apiRoutes);
 
 /**
  * @swagger
