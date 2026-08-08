@@ -63,8 +63,7 @@ Content-Type: application/json
 
 {
   "correo": "juan@example.com",
-  "password": "password123",
-  "captchaToken": "token_recaptcha"
+  "password": "password123"
 }
 ```
 
@@ -120,7 +119,7 @@ Content-Type: application/json
 const response = await fetch('/api/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ correo, password, captchaToken })
+  body: JSON.stringify({ correo, password })
 });
 
 const { token, nombre, rol } = await response.json();
