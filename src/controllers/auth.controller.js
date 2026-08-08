@@ -40,15 +40,27 @@ exports.login = async (req, res) => {
   try {
     // Verificar el token de reCAPTCHA
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
-    const response = await axios.post(verifyUrl, null, {
-      params: {
-        secret: secretKey,
-        response: captchaToken,
-      },
+    if (!secretKey) {
+      console.error('RECAPTCHA_SECRET_KEY no está configurada');
+      return res.status(500).json({ message: 'CAPTCHA no configurado en el servidor.' });
+    }
+
+    const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+    const params = new URLSearchParams();
+    params.append('secret', secretKey);
+    params.append('response', captchaToken);
+    if (req.ip) params.append('remoteip', req.ip);
+
+    const { data: captchaResult } = await axios.post(verifyUrl, params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 
-    if (!response.data.success || response.data.score < 0.5) {
+    // v3 incluye score; v2 solo success
+    const scoreOk =
+      typeof captchaResult.score !== 'number' || captchaResult.score >= 0.5;
+
+    if (!captchaResult.success || !scoreOk) {
+      console.error('reCAPTCHA falló:', captchaResult['error-codes'] || captchaResult);
       return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA.' });
     }
 
