@@ -17,6 +17,13 @@ const pool = mysql.createPool({
 // Obtener pool con promesas
 const promisePool = pool.promise();
 
+console.log('MYSQL CONFIG:', {
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT,
+  user: process.env.MYSQL_USER,
+  database: process.env.MYSQL_DATABASE
+});
+
 // Helper para ejecutar queries
 const execute = async (sql, params = []) => {
   try {
